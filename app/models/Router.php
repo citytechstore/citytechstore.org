@@ -17,7 +17,7 @@ class Router
         }
 
         $uri_parse = parse_url($this->uri);
-        $uri_path = $uri_parse['path'];
+        $uri_path = $this->stripBasePath($uri_parse['path']);
         $uri_query = [];
         if (array_key_exists('query', $uri_parse)) {
             parse_str($uri_parse['query'], $uri_query);
@@ -27,6 +27,19 @@ class Router
         } else {
             $this->abort_router("404");
         }
+    }
+
+    private function stripBasePath($path)
+    {
+        // Works whether index.php runs at the domain root (live server)
+        // or inside a subfolder (e.g. local XAMPP htdocs/citytechstore.org)
+        $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+        if ($basePath !== '' && strpos($path, $basePath) === 0) {
+            $path = substr($path, strlen($basePath));
+        }
+
+        return $path === '' ? '/' : $path;
     }
 
     protected function abort_router($code = "404")

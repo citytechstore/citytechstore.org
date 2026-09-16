@@ -17,30 +17,30 @@
                 <div class="position-sticky">
                     <ul class="nav flex-column">
                         <li class="nav-item pb-3 pt-3">
-                            <a class="nav-link active" aria-current="page" href="/dashboard">
+                            <a class="nav-link active" aria-current="page" href="dashboard">
                                 <i class="fas fa-tachometer-alt fs-5"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item pb-3">
-                            <a class="nav-link" href="/manage?type=products">
+                            <a class="nav-link" href="manage?type=products">
                                 <i class="fa fa-box-open fs-5"></i> Products
                             </a>
                         </li>
                         <li class="nav-item pb-3">
-                            <a class="nav-link" href="/manage?type=sales">
+                            <a class="nav-link" href="manage?type=sales">
                                 <i class="fa fa-dollar-sign fs-5"></i> Sales
                             </a>
                         </li>
                         <?php if($_SESSION['user_session']['role'] == 'admin'): ?>
                         <li class="nav-item pb-3">
-                            <a class="nav-link" href="/manage?type=users">
+                            <a class="nav-link" href="manage?type=users">
                                 <i class="fa fa-users fs-5"></i> Users
                             </a>
                         </li>
                         <?php endif; ?>
 
                         <li class="nav-item pb-3">
-                            <a class="nav-link" href="/dashboard.php?logout=true">
+                            <a class="nav-link" href="dashboard.php?logout=true">
                                 <i class="fa fa-sign-out-alt fs-5"></i> Logout
                             </a>
                         </li>
@@ -99,7 +99,7 @@
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo $total_users; ?></h5>
                                 <p class="card-text">Registered users in the system.</p>
-                                <p class="card-text">To add new user, <a href="/manage?type=users"
+                                <p class="card-text">To add new user, <a href="manage?type=users"
                                         class="link text-decoration-none">click here</a></p>
                             </div>
                         </div>
@@ -118,8 +118,8 @@
                             <div class="col-sm-12 text-center">
                                 <h4>Manage Products & Sales</h4>
                                 <div class="btn-group">
-                                    <a href="/manage?type=products" class="btn btn-success">Go to Products</a>
-                                    <a href="/manage?type=sales" class="btn btn-primary">Go to Sales</a>
+                                    <a href="manage?type=products" class="btn btn-success">Go to Products</a>
+                                    <a href="manage?type=sales" class="btn btn-primary">Go to Sales</a>
                                 </div>
                             </div>
                         </div>
@@ -170,7 +170,7 @@
                                 </tbody>
                                 <!-- </ul> -->
                         </table>
-                        <a href="/manage?type=users" class="btn btn-warning">Manage Users</a>
+                        <a href="manage?type=users" class="btn btn-warning">Manage Users</a>
                     </div>
                 </div>
                 <?php endif; ?>

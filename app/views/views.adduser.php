@@ -32,7 +32,7 @@
                             <h3>Sign Up for City Tech Store Role</h3>
                         </div>
                         <div class="card-body">
-                            <form action="/adduser" method="POST">
+                            <form action="adduser" method="POST">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Username</label>
                                     <input type="text" class="form-control" id="username" name="username" required>
@@ -88,7 +88,7 @@
                                     <h3>ARE YOU SURE YOU WANT TO DELETE?</h3>
                                 </div>
                                 <div class="card-body">
-                                    <form action="/adduser" method="POST">
+                                    <form action="adduser" method="POST">
                                         <div class="mb-3">
                                             <p for="username">Username</p>
                                             <p class="text-end"><?php echo $check_result['username']; ?></p>
@@ -114,7 +114,7 @@
                                             <p class="text-end"><?php echo $check_result['role']; ?></p>
                                         </div>
                                         <div class="d-grid">
-                                            <a href="/adduser?action=delete&id=<?php echo $check_result['id']; ?>&confirmation=true" class="btn btn-danger">Permanently delete user</a>
+                                            <a href="adduser?action=delete&id=<?php echo $check_result['id']; ?>&confirmation=true" class="btn btn-danger">Permanently delete user</a>
                                         </div>
                                     </form>
                                 </div>

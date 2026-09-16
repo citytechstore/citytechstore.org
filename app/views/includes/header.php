@@ -9,7 +9,7 @@
 </div>
 <nav class="navbar navbar-expand-lg bg-body-tertiary p-3 sticky-top shadow-sm" aria-label="Main Navbar">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold fs-3" href="/" style="color:red;">
+    <a class="navbar-brand fw-bold fs-3" href="" style="color:red;">
       <img src="assets/img/icons/android-chrome-192x192.png" alt="City Tech Logo" width="50px">
       <?php echo strtoupper(APP_NAME); ?>
     </a>
@@ -19,16 +19,16 @@
     <div class="navbar-collapse collapse" id="navbarsExample09" style="">
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/">Home</a>
+          <a class="nav-link" aria-current="page" href="">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/list?view=products">Product</a>
+          <a class="nav-link" aria-current="page" href="list?view=products">Product</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/storesection">Store Sections</a>
+          <a class="nav-link" aria-current="page" href="storesection">Store Sections</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="/login">Login</a>
+          <a class="nav-link" aria-current="page" href="login">Login</a>
         </li>
        
         <li class="nav-item dropdown">
@@ -36,7 +36,7 @@
             Help
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/tutorials">Tutorials</a></li>
+            <li><a class="dropdown-item" href="tutorials">Tutorials</a></li>
             <!-- <li> <a class="dropdown-item" href="/how-to">How to</a></li> -->
             <!-- <li> <a class="dropdown-item" href="/faqs">FAQs</a></li> -->
           </ul>

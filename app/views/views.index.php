@@ -112,7 +112,7 @@
             <p class="opacity-75">Elevate your productivity and entertainment with our range of high-performance
               gadgets. Unleash the potential of your digital world with <?php echo APP_NAME; ?>'s curated selection of devices.
             </p>
-            <a class="btn btn-lg btn-primary me-3" href="/list?view=products">Explore</a>
+            <a class="btn btn-lg btn-primary me-3" href="list?view=products">Explore</a>
             <a class="btn btn-lg btn-outline-primary" href="#contactus">Contact us</a>
           </div>
         </div>
@@ -124,7 +124,7 @@
             <h1>Experience Cutting-Edge Innovation</h1>
             <p>Discover the latest in computing technology that empowers you to do more. From powerful laptops to sleek
               desktop setups, explore the future of computing with <?php echo APP_NAME; ?>.</p>
-            <a class="btn btn-lg btn-primary me-3" href="/list?view=products">Explore</a>
+            <a class="btn btn-lg btn-primary me-3" href="list?view=products">Explore</a>
             <a class="btn btn-lg btn-outline-primary" href="#contactus">Contact us</a>
           </div>
         </div>
@@ -136,7 +136,7 @@
             <h1>Welcome to <?php echo APP_NAME; ?></h1>
             <p>Your premier destination for all things tech. Dive into a world of innovation and convenience with our
               curated collection of computer gadgets. Experience the future today at <?php echo APP_NAME; ?>.</p>
-            <a class="btn btn-lg btn-primary me-3" href="/list?view=products">Explore</a>
+            <a class="btn btn-lg btn-primary me-3" href="list?view=products">Explore</a>
             <a class="btn btn-lg btn-outline-primary" href="#contactus">Contact us</a>
           </div>
         </div>

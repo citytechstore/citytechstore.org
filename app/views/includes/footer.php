@@ -16,7 +16,7 @@
 </svg> -->
   <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
     <div class="col-md-4 d-flex align-items-center">
-    <a class="navbar-brand" href="/">
+    <a class="navbar-brand" href="">
           <img src="assets/img/icons/android-chrome-192x192.png" alt="City Tech Logo" width="50px" class="me-4">
       </a>
       <span class="mb-3 mb-md-0 text-body-secondary">©  <?php echo COPYRIGHT_YEAR;?>  <?php echo APP_NAME;?></span>

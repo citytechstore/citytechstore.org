@@ -74,7 +74,7 @@
 
                 <?php foreach ($products as $product): ?>
                     <div class="col-md-3 mb-1">
-                        <a href="/list?c=manufacturer&p=<?php echo $product['manufacturer']; ?>"
+                        <a href="list?c=manufacturer&p=<?php echo $product['manufacturer']; ?>"
                             class="link text-decoration-none">
                             <div class="card">
                                 <div class="card-body">

@@ -15,7 +15,7 @@
                 <?php if (isset($error)): ?>
                     <div class="alert alert-danger"><?php echo $error; ?></div>
                 <?php endif; ?>
-                <form action="/login" method="post" class="mt-4">
+                <form action="login" method="post" class="mt-4">
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" name="username" id="username" class="form-control" required>
