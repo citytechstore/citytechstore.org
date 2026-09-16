@@ -1,0 +1,26 @@
+# Secrets / environment-specific config — never commit real credentials
+config/config.php
+app/database/db_config.php
+.env
+.env.*
+!.env.example
+
+# Logs
+error_log
+*.log
+
+# Dependencies (restore with `composer install`)
+vendor/
+
+# User-uploaded / runtime content
+resources/assets/uploads/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Old scratch/unused files
+trashs/

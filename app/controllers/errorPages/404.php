@@ -1,0 +1,1 @@
+<?php require 'app/views/errorPages/404.php';
