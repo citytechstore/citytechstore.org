@@ -16,6 +16,18 @@ class Database {
         return $this->conn->query($sql);
     }
 
+    public function beginTransaction() {
+        return $this->conn->begin_transaction();
+    }
+
+    public function commit() {
+        return $this->conn->commit();
+    }
+
+    public function rollback() {
+        return $this->conn->rollback();
+    }
+
     public function array_insert($tablename, $data) {
         $columns = implode(", ", array_keys($data));
         $placeholders = implode(", ", array_fill(0, count($data), '?'));

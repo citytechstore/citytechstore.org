@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['loggedin']) || !isset($_SESSION['user_session']) || $_SESSION['loggedin'] != true || empty($_SESSION['user_session'])) {
-    header("Location: /login");
+    header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/login");
 }
 
 if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
@@ -13,7 +13,7 @@ if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
     session_destroy();
 
     // Redirect to the login page
-    header("Location: /login");
+    header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/login");
     exit();
 }
 
@@ -46,7 +46,7 @@ $total_sales_count = count($sales);
 $total_users = count($users);
 
 if (isset($_GET['type']) && (strtolower($_GET['type']) == 'users' || strtolower($_GET['type']) == 'user') && !($_SESSION['user_session']['role'] == 'admin')) {
-    header("Location: /dashboard");
+    header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/dashboard");
 }
 
 
@@ -119,10 +119,11 @@ if (isset($_POST['addProduct']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
                 'remaining_quantity' => $ProductModel->getProductById($productID)['quantity']
             ])
         ) {
-            header("Location: /manage?type=products&status=success&init=updateProduct");
+            $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+            header("Location: " . $basePath . "/manage?type=products&status=success&init=updateProduct");
             exit();
         } else {
-            header("Location: /manage?type=products&status=failed&init=updateProduct");
+            header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/manage?type=products&status=failed&init=updateProduct");
             exit();
         }
     } else {
@@ -152,7 +153,8 @@ if (isset($_POST['addProduct']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
             'quantity' => $quantity,
             'remaining_quantity' => $ProductModel->getProductById($productId)['quantity']
         ]);
-        header("Location: /manage?type=products&status=success&init=upload");
+        $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        header("Location: " . $basePath . "/manage?type=products&status=success&init=upload");
         exit();
     }
     // Redirect or inform the user
@@ -242,12 +244,13 @@ if (isset($_POST['addSales']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
             'remaining_quantity' => $newQuantity
         ]);
         // Redirect or show a success message
-        header('Location: /manage?type=sales&init=addsales&status=success');
+        $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        header('Location: ' . $basePath . '/manage?type=sales&init=addsales&status=success');
         exit();
     } else {
         // Handle the error (e.g., product not found or insufficient quantity)
         echo "Product not found or insufficient quantity.";
-        header('Location: /manage?type=sales&init=addsales&status=failed');
+        header('Location: ' . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . '/manage?type=sales&init=addsales&status=failed');
     }
 }
 
@@ -312,10 +315,11 @@ if (isset($_POST['editProductInfo']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
         $ProductModel->arrayUpdateProduct($editingProductArr, $productID) &&
         $StockModel->recordStockActivity($updateStockValues)
     ) {
-        header("Location: /manage?type=products&status=success&init=updateProduct");
+        $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        header("Location: " . $basePath . "/manage?type=products&status=success&init=updateProduct");
         exit();
     } else {
-        header("Location: /manage?type=products&status=failed&init=updateProduct");
+        header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/manage?type=products&status=failed&init=updateProduct");
         exit();
     }
 }

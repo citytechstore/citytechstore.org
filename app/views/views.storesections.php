@@ -27,9 +27,9 @@
         <div class="container mt-5 pt-3 text-center">
 
             <div class="row align-items-center">
-                <div class="col"><a href="/storesection?render=create" class="btn btn-primary">Create New Section</a></div>
-                <!-- <div class="col"><a href="/storesection?render=edit&section_id=" class="btn btn-warning">Update Section</a></div> -->
-                <!-- <div class="col"><a href="/storesection?render=delete" class="btn btn-danger">Delete Section</a></div> -->
+                <div class="col"><a href="storesection?render=create" class="btn btn-primary">Create New Section</a></div>
+                <!-- <div class="col"><a href="storesection?render=edit&section_id=" class="btn btn-warning">Update Section</a></div> -->
+                <!-- <div class="col"><a href="storesection?render=delete" class="btn btn-danger">Delete Section</a></div> -->
             </div>
         </div>
     <?php endif; ?>
@@ -39,7 +39,7 @@
 
         <div class="container mt-5">
             <h2>Create a New Section</h2>
-            <form id="create-section-form" enctype="multipart/form-data" action="/storesection" method="POST">
+            <form id="create-section-form" enctype="multipart/form-data" action="storesection" method="POST">
                 <div class="mb-3">
                     <label for="section_name" class="form-label">Section Name</label>
                     <input type="text" class="form-control" id="section_name" name="section_name" required>
@@ -70,7 +70,7 @@
         if ($section): ?>
             <div class="container mt-5">
                 <h2>Edit Section</h2>
-                <form id="edit-section-form" enctype="multipart/form-data" method="POST" action="/storesection">
+                <form id="edit-section-form" enctype="multipart/form-data" method="POST" action="storesection">
                     <input type="hidden" id="section_id" name="section_id" value="<?php echo $section['id']; ?>" />
                     <div class="mb-3">
                         <label for="section_name" class="form-label">Section Name</label>
@@ -112,8 +112,8 @@
  <div class="container text-center">
 
      <p class="fs-3">Are you sure you want to delete this section? </p>
-     <a href='/storesection?action=delete&section_id=<?= $_GET["section_id"]; ?>&confirmed_action=true' class='btn btn-outline-danger'>Yes, delete</a>
-     <a href='/storesection' class='btn btn-secondary'>Cancel</a>
+     <a href='storesection?action=delete&section_id=<?= $_GET["section_id"]; ?>&confirmed_action=true' class='btn btn-outline-danger'>Yes, delete</a>
+     <a href='storesection' class='btn btn-secondary'>Cancel</a>
  </div>
 
     <?php elseif (isUserAllowedToURI()): ?>
@@ -124,9 +124,9 @@
             <div class="container mt-5 pt-3 text-center mb-5">
 
                 <div class="row align-items-center">
-                    <!-- <div class="col"><a href="/storesection?render=create" class="btn btn-primary">Create Section</a></div> -->
-                    <div class="col"><a href="/storesection?render=edit&section_id=<?php echo $_GET['section_id']; ?>" class="btn btn-warning">Update Section</a></div>
-                    <div class="col"><a href="/storesection?render=delete&section_id=<?php echo $_GET['section_id']; ?>" class="btn btn-danger">Delete Section</a></div>
+                    <!-- <div class="col"><a href="storesection?render=create" class="btn btn-primary">Create Section</a></div> -->
+                    <div class="col"><a href="storesection?render=edit&section_id=<?php echo $_GET['section_id']; ?>" class="btn btn-warning">Update Section</a></div>
+                    <div class="col"><a href="storesection?render=delete&section_id=<?php echo $_GET['section_id']; ?>" class="btn btn-danger">Delete Section</a></div>
                 </div>
             </div>
         <?php endif; ?>

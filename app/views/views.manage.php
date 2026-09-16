@@ -115,7 +115,7 @@
 
                   <div class="container mt-4">
                   <h1>Add Product Info</h1>
-                  <form action="/manage" method="POST" enctype="multipart/form-data">
+                  <form action="manage" method="POST" enctype="multipart/form-data">
                       <!-- Product Information -->
                       <div class="mb-3">
                           <div class="row">
@@ -237,7 +237,7 @@
       
       <div class="container">
       <h1 class="fs-4 mb-3">Record Sale</h1>
-      <form method="POST" action="/manage" enctype="multipart/form-data">
+      <form method="POST" action="manage" enctype="multipart/form-data">
           <!-- Product Information -->
           <div class="mb-3">
               <h2 class="fs-5">Product Information</h2>
@@ -322,7 +322,7 @@
               <div class="row mb-5">
                   <div class="col-md-12">
                       <h4 class="mb-3">Manage All Users</h4>
-                      <a href="/adduser" class="btn btn-info">Add Users</a>
+                      <a href="adduser" class="btn btn-info">Add Users</a>
 
                       <table class="table">
                           <thead>
@@ -356,7 +356,7 @@
                 }
                 $html_data2 = ' </tbody>
                       </table>
-                      <a href="/adduser" class="btn btn-info">Add Users</a>
+                      <a href="adduser" class="btn btn-info">Add Users</a>
                   </div>
                   </div>
               </div>';
@@ -378,16 +378,16 @@
                     echo '<h2 class="mb-4">Welcome to City Tech Store</h2>';
                     echo '<p>What do you want to manage?</p>';
                     echo '<div class="btn-group">
-            <a href="/manage?type=products" class="btn btn-success">Products</a>
-            <a href="/manage?type=sales" class="btn btn-info">Sales</a>
-            <a href="/manage?type=users" class="btn btn-warning">Users</a>
+            <a href="manage?type=products" class="btn btn-success">Products</a>
+            <a href="manage?type=sales" class="btn btn-info">Sales</a>
+            <a href="manage?type=users" class="btn btn-warning">Users</a>
             </div>';
                 } else {
                     echo '<h2 class="mb-4">Welcome to City Tech Store</h2>';
                     echo '<p>What do you want to manage?</p>';
                     echo '<div class="btn-group">
-        <a href="/manage?type=products" class="btn btn-success">Products</a>
-        <a href="/manage?type=sales" class="btn btn-info">Sales</a>
+        <a href="manage?type=products" class="btn btn-success">Products</a>
+        <a href="manage?type=sales" class="btn btn-info">Sales</a>
         </div>';
                 }
             }
@@ -402,7 +402,7 @@
             echo '
         <div class="container mt-4">
     <h1>Edit Product Info</h1>
-    <form action="/manage" method="POST" enctype="multipart/form-data">
+    <form action="manage" method="POST" enctype="multipart/form-data">
         <!-- Product Information -->
         <div class="mb-3">
             <div class="row">

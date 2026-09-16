@@ -42,6 +42,12 @@ class Products {
         $result = $this->db->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+    public function getDistinctManufacturers() {
+        $sql = "SELECT DISTINCT manufacturer FROM products WHERE manufacturer IS NOT NULL AND manufacturer <> '' ORDER BY manufacturer ASC";
+        $result = $this->db->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     public function getProductByCriteria($value, $criteria = 'name') {
         // Default criteria is 'name' if not specified
         $criteria = in_array($criteria, ['name', 'manufacturer', 'category', 'product_picture_url']) ? $criteria : 'name';

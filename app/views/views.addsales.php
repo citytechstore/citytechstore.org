@@ -10,7 +10,7 @@
     <?php require_once('includes/header.php'); ?>
     <div class="container">
         <h1>Record Sale</h1>
-        <form method="POST" enctype="multipart/form-data" action="/controller/add_sale.php">
+        <form method="POST" enctype="multipart/form-data" action="controller/add_sale.php">
             <!-- Product Information -->
             <div class="mb-3">
                 <h2>Product Information</h2>

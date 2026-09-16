@@ -20,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user['role'] === $role) {
             $_SESSION['user_session'] = $user;
             $_SESSION['loggedin'] = true;
-            header('Location: /dashboard?role='.$user['role'].'&id='.$user['id']);
+            $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+            header('Location: ' . $basePath . '/dashboard?role='.$user['role'].'&id='.$user['id']);
             exit;
         } else {
             $error = "Invalid role selected.";

@@ -1,6 +1,6 @@
 <div class="container mt-4">
     <h1>Edit Product Info</h1>
-    <form action="/manage" method="POST" enctype="multipart/form-data">
+    <form action="manage" method="POST" enctype="multipart/form-data">
         <!-- Product Information -->
         <div class="mb-3">
             <div class="row">
