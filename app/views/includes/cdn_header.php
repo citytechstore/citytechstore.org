@@ -14,7 +14,8 @@ $baseHref = ($basePath === '') ? '/' : $basePath . '/';
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&display=swap"
+<link
+    href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&family=Outfit:wght@600;700;800&family=Geist:wght@400;500;600;700&display=swap"
     rel="stylesheet">
 <link rel="stylesheet" href="assets/css/theme.css">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
