@@ -5,7 +5,7 @@
 */
 
 :root {
-    --color-primary: #F95738;
+    --color-primary: #E31E24;
     --color-primary-dark: color-mix(in srgb, var(--color-primary) 82%, black);
     --color-navy: #0F172A;
     --color-navy-light: #1E293B;
@@ -79,20 +79,188 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .site-header-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: var(--color-navy);
     text-decoration: none;
-    text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 .site-header-icon i {
-    display: block;
-    font-size: 1.25rem;
-    margin: 0 auto 2px;
+    font-size: 1.1rem;
 }
 
 .site-header-icon:hover {
     color: var(--color-primary);
+}
+
+.site-header-textlink {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.site-header-textlink i {
+    font-size: 0.85rem;
+}
+
+.site-header-textlink:hover {
+    color: var(--color-primary);
+}
+
+@media (min-width: 992px) {
+    .site-header-icon {
+        flex-direction: column;
+        gap: 2px;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    .site-header-icon i {
+        font-size: 1.25rem;
+    }
+}
+
+/* ---------- Mobile header (< md), Konga-style single compact row ---------- */
+.site-header-mobile {
+    background-color: var(--color-bg);
+    border-bottom: 1px solid var(--color-bg-secondary);
+}
+
+.site-mobile-menu-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    font-size: 1.35rem;
+    color: var(--color-navy);
+    line-height: 1;
+}
+
+.site-brand-mobile {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.site-mobile-icons {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+}
+
+.site-mobile-icon {
+    color: var(--color-navy);
+    font-size: 1.25rem;
+    text-decoration: none;
+}
+
+.site-mobile-icon:hover,
+.site-mobile-icon:active {
+    color: var(--color-primary);
+}
+
+.site-nav-mobile-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 0 0.75rem 0.75rem;
+}
+
+.site-nav-mobile-link {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.site-nav-mobile-link.site-nav-mobile-all {
+    background-color: var(--color-accent-soft-bg);
+    color: var(--color-primary);
+}
+
+.site-nav-mobile-link:hover,
+.site-nav-mobile-link:active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+/* ---------- Mobile hamburger sidebar (offcanvas) ---------- */
+.mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-menu-link i {
+    width: 20px;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link:active {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-primary);
+}
+
+.mobile-menu-link:hover i,
+.mobile-menu-link:active i {
+    color: var(--color-primary);
+}
+
+.mobile-menu-link-bold {
+    font-family: var(--font-family-heading);
+    font-weight: 700;
+    color: var(--color-dark);
+    font-size: 1.05rem;
+}
+
+.mobile-menu-link-bold i:first-child {
+    color: var(--color-primary);
+}
+
+.mobile-menu-chevron {
+    margin-left: auto;
+    width: auto !important;
+    font-size: 0.8rem !important;
+    color: var(--color-text-muted) !important;
+}
+
+.mobile-menu-section-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    padding: 1rem 1rem 0.5rem;
 }
 
 /* ---------- Nav tabs ---------- */
@@ -119,6 +287,21 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom-color: var(--color-primary);
 }
 
+.site-nav-all-categories {
+    font-weight: 700 !important;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+    margin-right: 0.5rem;
+}
+
+.site-nav-all-categories i {
+    color: var(--color-primary);
+    margin-right: 0.4rem;
+}
+
 /* ---------- Section headings (Flash Deals, Shop by Brand, etc.) ---------- */
 h4.fs-4 {
     font-size: 28px;
@@ -129,6 +312,29 @@ h4.fs-4 {
     h4.fs-4 {
         font-size: 20px;
     }
+}
+
+/* ---------- Product strip header banner (Konga-style colored bar) ---------- */
+.strip-header {
+    background-color: var(--color-primary);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+}
+
+.strip-header-title {
+    color: var(--color-white);
+}
+
+.strip-header-link {
+    color: var(--color-white);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.strip-header-link:hover {
+    color: var(--color-white);
+    text-decoration: underline;
 }
 
 /* ---------- Footer ---------- */
@@ -233,6 +439,78 @@ h4.fs-4 {
     color: var(--color-white);
 }
 
+/* ---------- Product detail page ---------- */
+.product-detail-image-wrap {
+    height: 380px;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.product-detail-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-detail-title {
+    font-family: var(--font-family-heading);
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+.product-detail-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.product-detail-buy-btn {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    font-weight: 600;
+    padding: 0.65rem 1.5rem;
+}
+
+.product-detail-buy-btn:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.product-thumbnail {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--color-border);
+    cursor: pointer;
+}
+
+.product-thumbnail-active {
+    border-color: var(--color-primary);
+}
+
+.product-share-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--color-bg);
+    color: var(--color-text-muted);
+}
+
+.product-share-icon:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
 /* ---------- Homepage: hero banner ---------- */
 .hero-banner {
     position: relative;
@@ -281,8 +559,18 @@ h4.fs-4 {
     margin-bottom: 1rem;
 }
 
+@media (max-width: 575.98px) {
+    .hero-banner-content {
+        padding: 1.5rem;
+    }
+
+    .hero-banner-content h1 {
+        font-size: 28px;
+    }
+}
+
 .hero-banner-content p {
-    color: #E2E8F0;
+    color: var(--color-border);
     margin-bottom: 1.5rem;
 }
 
@@ -299,26 +587,136 @@ h4.fs-4 {
     color: var(--color-white);
 }
 
-/* ---------- Homepage: flash deals countdown ---------- */
-.flash-deals-countdown {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+/* ---------- Homepage: hero carousel + placeholder panel ---------- */
+/* Used until real product photography replaces the scraped Samsung/Apple
+   marketing images and unrelated screenshot currently in the products
+   table — see product_picture_url. No background-image, just a branded
+   panel, so it never looks like a broken/missing image. */
+.hero-banner-placeholder {
+    background: linear-gradient(135deg, var(--color-navy) 0%, var(--color-dark) 100%);
+    justify-content: center;
 }
 
-.flash-deals-countdown-box {
+.hero-banner-placeholder::before {
+    content: none;
+}
+
+.hero-banner-placeholder-icon {
+    position: absolute;
+    right: 6%;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11rem;
+    color: rgba(255, 255, 255, 0.08);
+    z-index: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 991.98px) {
+    .hero-banner-placeholder-icon {
+        font-size: 7rem;
+    }
+}
+
+.hero-carousel .carousel-inner,
+.hero-carousel .carousel-item {
+    border-radius: 12px;
+}
+
+.hero-carousel .carousel-indicators {
+    margin-bottom: 0.75rem;
+}
+
+.hero-carousel .carousel-indicators [data-bs-target] {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.4);
+    opacity: 1;
+    margin: 0 4px;
+}
+
+.hero-carousel .carousel-indicators .active {
+    background-color: var(--color-primary);
+}
+
+/* ---------- Homepage: hero side promo tiles ---------- */
+.hero-promo-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    min-height: 170px;
+    border-radius: 12px;
     background-color: var(--color-dark);
     color: var(--color-white);
-    font-weight: 700;
-    border-radius: 4px;
-    padding: 0.3rem 0.6rem;
-    min-width: 2.5rem;
-    text-align: center;
+    text-decoration: none;
+    padding: 1.25rem;
 }
 
-.flash-deals-countdown-sep {
-    color: var(--color-text-muted);
+.hero-promo-tile i {
+    font-size: 1.75rem;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+}
+
+.hero-promo-tile span {
+    font-family: var(--font-family-heading);
     font-weight: 700;
+}
+
+.hero-promo-tile:hover {
+    background-color: var(--color-navy-light);
+    color: var(--color-white);
+}
+
+/* ---------- Homepage: category quicklinks ---------- */
+.category-quicklinks {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+}
+
+.category-quicklink {
+    scroll-snap-align: start;
+}
+
+.category-quicklink {
+    flex: 0 0 auto;
+    width: 96px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--color-text);
+}
+
+.category-quicklink-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 0.5rem;
+    border-radius: 50%;
+    background-color: var(--color-accent-soft-bg);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.category-quicklink-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.category-quicklink:hover .category-quicklink-icon {
+    background-color: var(--color-primary);
+    color: var(--color-white);
 }
 
 /* ---------- Homepage: shop by brand ---------- */

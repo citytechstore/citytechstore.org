@@ -45,6 +45,9 @@
                         <li> <a class="dropdown-item" href="manage?type=sales">
                                 <i class="fas fa-chart-line"></i>
                                 Manage Sales</a></li>
+                        <li> <a class="dropdown-item" href="manage?type=categories">
+                                <i class="fas fa-tags"></i>
+                                Manage Categories</a></li>
                         <li>
                         <li> <a class="dropdown-item" href="storesection">
                                 <i class="fa fa-columns"></i>

@@ -42,9 +42,24 @@ class Products {
         $result = $this->db->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+    public function getDistinctCategories() {
+        $sql = "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category <> '' ORDER BY category ASC";
+        $result = $this->db->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     public function getDistinctManufacturers() {
         $sql = "SELECT DISTINCT manufacturer FROM products WHERE manufacturer IS NOT NULL AND manufacturer <> '' ORDER BY manufacturer ASC";
         $result = $this->db->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getProductsByCategory($category, $limit = 8) {
+        $sql = "SELECT * FROM products WHERE category = ? LIMIT ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("si", $category, $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 

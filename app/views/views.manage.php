@@ -13,6 +13,8 @@
         $page_title = 'CTS - Sales management';
     } else if (isset($_GET['type']) && (strtolower($_GET['type']) == 'user' || strtolower($_GET['type']) == 'users')) {
         $page_title = 'CTS - Users management';
+    } else if (isset($_GET['type']) && strtolower($_GET['type']) == 'categories') {
+        $page_title = 'CTS - Categories management';
     }
     ?>
     <title><?php echo $page_title; ?></title>
@@ -45,6 +47,11 @@
     <div class="container mt-4">
         <?php
         if (isset($_GET['type']) && (strtolower($_GET['type']) == 'products' || strtolower($_GET['type']) == 'product') && !isset($_GET['action'])) {
+
+            $categoryOptionsHtml = '<option value="">Select category</option>';
+            foreach ($categories as $cat) {
+                $categoryOptionsHtml .= '<option value="' . htmlspecialchars($cat['name']) . '">' . htmlspecialchars($cat['name']) . '</option>';
+            }
 
             echo '
             <div class="container-fluid">
@@ -148,13 +155,13 @@
                               </div>
                               <div class="col-md-6">
                                   <label for="category" class="form-label">Category</label>
-                                  <input type="text" class="form-control" id="category" name="category" placeholder="Enter category">
+                                  <select class="form-control" id="category" name="category" required>' . $categoryOptionsHtml . '</select>
                               </div>
                           </div>
                           <div class="row mt-3">
                               <div class="col-md-6">
-                                  <label for="productImage" class="form-label">Product Image</label>
-                                  <input type="file" class="form-control" id="productImage" name="productImage" accept="image/*">
+                                  <label for="productImage" class="form-label">Product Images</label>
+                                  <input type="file" class="form-control" id="productImage" name="productImages[]" accept="image/*" multiple>
                               </div>
                               <div class="col-md-6">
                                <!--   <label for="uploaderName" class="form-label">Uploader Name</label> -->
@@ -172,6 +179,75 @@
                   </div>
                   </div>
                   </div>
+            </div>
+            ';
+        } elseif (isset($_GET['type']) && strtolower($_GET['type']) == 'categories' && !isset($_GET['action'])) {
+
+            echo '
+            <div class="container-fluid">
+            <div class="row border-bottom pb-1">
+            <div class="col-12"><h2 class="mb-4">Categories Management</h2></div>
+            </div>
+            </div>
+            ';
+
+            if (isset($_GET['status'])) {
+                if ($_GET['status'] === 'success') {
+                    echo '<div class="alert alert-success">Category added successfully.</div>';
+                } elseif ($_GET['status'] === 'failed') {
+                    $categoryErrorMessage = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Something went wrong.';
+                    echo '<div class="alert alert-danger">' . $categoryErrorMessage . '</div>';
+                }
+            }
+
+            echo '
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Created At</th>
+                    </tr>
+                </thead>
+                <tbody>';
+            foreach ($categories as $cat) {
+                echo '<tr>
+                    <td>' . $cat['id'] . '</td>
+                    <td>' . htmlspecialchars($cat['name']) . '</td>
+                    <td>' . $cat['created_at'] . '</td>
+                </tr>';
+            }
+            echo '</tbody></table>';
+            if (count($categories) == 0) {
+                echo '<h4 class="text-muted text-center mt-5 mb-5">No categories yet</h4>';
+            }
+
+            echo '
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+              Add Category
+            </button>
+
+            <div class="modal fade" id="addCategoryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="addCategoryModalLabel">Add Category</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                  <form action="manage" method="POST">
+                      <div class="mb-3">
+                          <label for="categoryName" class="form-label">Category Name</label>
+                          <input type="text" class="form-control" id="categoryName" name="categoryName" placeholder="Enter category name" required>
+                      </div>
+                      <button type="submit" class="btn btn-primary" name="addCategory">Add Category</button>
+                  </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+              </div>
+              </div>
             </div>
             ';
         } elseif (isset($_GET['type']) && (strtolower($_GET['type']) == 'sale' || strtolower($_GET['type']) == 'sales') && !isset($_GET['action'])) {
@@ -380,6 +456,7 @@
                     echo '<div class="btn-group">
             <a href="manage?type=products" class="btn btn-success">Products</a>
             <a href="manage?type=sales" class="btn btn-info">Sales</a>
+            <a href="manage?type=categories" class="btn btn-secondary">Categories</a>
             <a href="manage?type=users" class="btn btn-warning">Users</a>
             </div>';
                 } else {
@@ -388,6 +465,7 @@
                     echo '<div class="btn-group">
         <a href="manage?type=products" class="btn btn-success">Products</a>
         <a href="manage?type=sales" class="btn btn-info">Sales</a>
+        <a href="manage?type=categories" class="btn btn-secondary">Categories</a>
         </div>';
                 }
             }
@@ -399,6 +477,27 @@
             // get product info by ID
             $pid = user_input_sanitize($_GET['pid']);
             $productData = $ProductModel->getProductById($pid);
+
+            $categoryOptionsHtmlEdit = '<option value="">Select category</option>';
+            foreach ($categories as $cat) {
+                $selectedAttr = ($cat['name'] === $productData['category']) ? ' selected' : '';
+                $categoryOptionsHtmlEdit .= '<option value="' . htmlspecialchars($cat['name']) . '"' . $selectedAttr . '>' . htmlspecialchars($cat['name']) . '</option>';
+            }
+
+            $existingProductImages = $ProductImageModel->getImagesByProductId($pid);
+            $existingImagesHtml = '';
+            foreach ($existingProductImages as $img) {
+                $existingImagesHtml .= '
+                <div class="d-inline-block text-center me-2 mb-2" data-image-row="' . (int) $img['id'] . '">
+                    <img src="' . htmlspecialchars($img['image_path']) . '" alt="Product image" width="80" height="80" class="d-block mb-1" style="object-fit: cover; border: 1px solid #dee2e6; border-radius: 4px;">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-product-image-btn"
+                        data-image-id="' . (int) $img['id'] . '" data-product-id="' . (int) $pid . '">Remove</button>
+                </div>';
+            }
+            if ($existingImagesHtml === '') {
+                $existingImagesHtml = '<p class="text-muted mb-0">No gallery images yet.</p>';
+            }
+
             echo '
         <div class="container mt-4">
     <h1>Edit Product Info</h1>
@@ -442,13 +541,19 @@
                 </div>
                 <div class="col-md-6">
                     <label for="category" class="form-label">Category</label>
-                    <input type="text" class="form-control" id="category" name="category" placeholder="Enter category" value="' . $productData['category'] . '">
+                    <select class="form-control" id="category" name="category" required>' . $categoryOptionsHtmlEdit . '</select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <label class="form-label">Existing Gallery Images</label>
+                    <div>' . $existingImagesHtml . '</div>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <label for="productImage" class="form-label">Product Image</label>
-                    <input type="file" class="form-control" id="productImage" name="productImage" accept="image/*" value="' . $productData['product_picture_url'] . '">
+                    <label for="productImage" class="form-label">Add More Images</label>
+                    <input type="file" class="form-control" id="productImage" name="productImages[]" accept="image/*" multiple>
                 </div>
                 <div class="col-md-6">
                     <input type="hidden" class="form-control" id="uploaderName" name="uploaderName" placeholder=""
@@ -462,6 +567,44 @@
 </div>
 </div>
         ';
+
+            echo '<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".remove-product-image-btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+            if (!confirm("Remove this image?")) {
+                return;
+            }
+
+            var imageId = button.getAttribute("data-image-id");
+            var productId = button.getAttribute("data-product-id");
+
+            button.disabled = true;
+
+            fetch("product-image/remove", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "imageId=" + encodeURIComponent(imageId) + "&productId=" + encodeURIComponent(productId)
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        var row = button.closest("[data-image-row]");
+                        row.parentNode.removeChild(row);
+                    } else {
+                        alert(data.message || "Could not remove image.");
+                        button.disabled = false;
+                    }
+                })
+                .catch(function (error) {
+                    console.error("Remove image failed:", error);
+                    alert("Something went wrong removing this image.");
+                    button.disabled = false;
+                });
+        });
+    });
+});
+</script>';
             // print_r($productData);
         }
 

@@ -25,15 +25,19 @@ class ProductCategory
 
         // Check if query was successful
         if ($result) {
+            // Insert into product_category table
+            $stmt = $this->db->prepare("INSERT INTO product_category (category, quantity) VALUES (?, ?)");
+
             // Fetch rows and insert into product_category table
             while ($row = $result->fetch_assoc()) {
                 $category = $row['category'];
                 $quantity = $row['total_quantity'];
 
-                // Insert into product_category table
-                $insert_query = "INSERT INTO product_category (category, quantity) VALUES ('$category', $quantity)";
-                $this->db->query($insert_query);
+                $stmt->bind_param("si", $category, $quantity);
+                $stmt->execute();
             }
+
+            $stmt->close();
             return true; // Successful population
         } else {
             return false; // Failed population

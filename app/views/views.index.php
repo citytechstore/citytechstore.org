@@ -13,57 +13,95 @@
 <body>
   <?php require_once ('includes/header.php'); ?>
 
-  <!-- Hero banner -->
+  <!-- Hero carousel + promo tiles -->
   <div class="container mt-4">
-    <div class="hero-banner"
-      <?php if ($heroProduct): ?>
-      style="background-image: url('<?php echo htmlspecialchars($heroProduct['product_picture_url']); ?>');"
-      <?php endif; ?>
-    >
-      <div class="hero-banner-content">
-        <span class="hero-badge">Now In Stock</span>
-        <h1 class="fs-1">
-          <?php if ($heroProduct): ?>
-            <?php echo htmlspecialchars($heroProduct['name']); ?>
-          <?php else: ?>
-            Welcome to <?php echo htmlspecialchars(APP_NAME); ?>
-          <?php endif; ?>
-        </h1>
-        <p class="fs-5">
-          Experience the peak of premium technology. Available today at <?php echo htmlspecialchars(APP_NAME); ?>,
-          your trusted destination for quality tech products and accessories.
-        </p>
-        <a href="shop" class="btn hero-shop-btn btn-lg">Shop Now</a>
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <?php if (!empty($heroSlides)): ?>
+          <div id="heroCarousel" class="carousel slide hero-carousel h-100" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+              <?php foreach ($heroSlides as $slideIndex => $slide): ?>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?php echo $slideIndex; ?>"
+                  <?php echo $slideIndex === 0 ? 'class="active" aria-current="true"' : ''; ?>
+                  aria-label="Slide <?php echo $slideIndex + 1; ?>"></button>
+              <?php endforeach; ?>
+            </div>
+            <div class="carousel-inner h-100">
+              <?php foreach ($heroSlides as $slideIndex => $slide): ?>
+                <div class="carousel-item h-100 <?php echo $slideIndex === 0 ? 'active' : ''; ?>">
+                  <div class="hero-banner hero-banner-placeholder h-100">
+                    <i class="fas <?php echo htmlspecialchars($slide['icon']); ?> hero-banner-placeholder-icon"></i>
+                    <div class="hero-banner-content">
+                      <span class="hero-badge"><?php echo htmlspecialchars($slide['badge']); ?></span>
+                      <h1 class="fs-1"><?php echo htmlspecialchars($slide['title']); ?></h1>
+                      <p class="fs-5"><?php echo htmlspecialchars($slide['description']); ?></p>
+                      <a href="<?php echo htmlspecialchars($slide['link']); ?>" class="btn hero-shop-btn btn-lg">
+                        <?php echo htmlspecialchars($slide['linkText']); ?>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php else: ?>
+          <div class="hero-banner hero-banner-placeholder h-100">
+            <i class="fas fa-store hero-banner-placeholder-icon"></i>
+            <div class="hero-banner-content">
+              <h1 class="fs-1">Welcome to <?php echo htmlspecialchars(APP_NAME); ?></h1>
+              <p class="fs-5">
+                Your trusted destination for quality tech products and accessories.
+              </p>
+              <a href="shop" class="btn hero-shop-btn btn-lg">Shop Now</a>
+            </div>
+          </div>
+        <?php endif; ?>
+      </div>
+      <div class="col-lg-4">
+        <div class="row g-3 h-100">
+          <div class="col-12 col-sm-6 col-lg-12">
+            <a href="shop" class="hero-promo-tile">
+              <i class="fas fa-store"></i>
+              <span>Shop All Products</span>
+            </a>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-12">
+            <a href="brands" class="hero-promo-tile">
+              <i class="fas fa-tags"></i>
+              <span>Shop by Brand</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Flash Deals -->
-  <div class="container mt-5">
-    <div class="d-flex justify-content-between flex-wrap align-items-center mb-4 gap-3">
-      <h4 class="fs-4 mb-0">Flash Deals</h4>
-      <div class="flash-deals-countdown" id="flash-deals-countdown">
-        <span class="flash-deals-countdown-box" id="countdown-hours">00</span>
-        <span class="flash-deals-countdown-sep">:</span>
-        <span class="flash-deals-countdown-box" id="countdown-minutes">00</span>
-        <span class="flash-deals-countdown-sep">:</span>
-        <span class="flash-deals-countdown-box" id="countdown-seconds">00</span>
-      </div>
-      <a href="shop" class="text-decoration-none">View All</a>
-    </div>
-
-    <?php if (empty($flashDealProducts)): ?>
-      <h4 class="text-muted text-center mt-4 mb-4">No deals available right now.</h4>
-    <?php else: ?>
-      <div class="row g-3">
-        <?php foreach ($flashDealProducts as $product): ?>
-          <div class="col-6 col-md-4 col-lg-3">
-            <?php include('includes/product_card.php'); ?>
-          </div>
+  <!-- Category quicklinks: real category data from $homeCategoryStrips, not
+       a hardcoded list — a category only appears here once it has products,
+       same rule product_strip.php follows for its own empty-state. -->
+  <?php $quicklinkStrips = array_filter($homeCategoryStrips, fn($strip) => !empty($strip['products'])); ?>
+  <?php if (!empty($quicklinkStrips)): ?>
+    <div class="container mt-4">
+      <div class="category-quicklinks">
+        <?php foreach ($quicklinkStrips as $strip): ?>
+          <a href="shop?c=category&p=<?php echo urlencode($strip['category']); ?>" class="category-quicklink">
+            <span class="category-quicklink-icon"><i class="fas <?php echo htmlspecialchars($strip['icon']); ?>"></i></span>
+            <span class="category-quicklink-label"><?php echo htmlspecialchars($strip['title']); ?></span>
+          </a>
         <?php endforeach; ?>
       </div>
-    <?php endif; ?>
-  </div>
+    </div>
+  <?php endif; ?>
+
+  <!-- Category strips -->
+  <?php foreach ($homeCategoryStrips as $strip): ?>
+    <?php
+      $stripTitle = $strip['title'];
+      $stripCategory = $strip['category'];
+      $stripProducts = $strip['products'];
+      include('includes/product_strip.php');
+    ?>
+  <?php endforeach; ?>
 
   <!-- Shop by Brand -->
   <div class="container mt-5">
@@ -129,37 +167,6 @@
 </body>
 <?php require_once ('includes/cdn_footer.php'); ?>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Cosmetic-only countdown (not tied to real deal expiry logic yet).
-    var countdownTarget = new Date(Date.now() + (2 * 60 * 60 * 1000) + (48 * 60 * 1000) + (15 * 1000));
-
-    var hoursEl = document.getElementById('countdown-hours');
-    var minutesEl = document.getElementById('countdown-minutes');
-    var secondsEl = document.getElementById('countdown-seconds');
-
-    function pad(n) {
-      return String(n).padStart(2, '0');
-    }
-
-    function tick() {
-      var diff = Math.max(0, countdownTarget - Date.now());
-      var hours = Math.floor(diff / (1000 * 60 * 60));
-      var minutes = Math.floor((diff / (1000 * 60)) % 60);
-      var seconds = Math.floor((diff / 1000) % 60);
-
-      hoursEl.textContent = pad(hours);
-      minutesEl.textContent = pad(minutes);
-      secondsEl.textContent = pad(seconds);
-
-      if (diff > 0) {
-        setTimeout(tick, 1000);
-      }
-    }
-
-    tick();
-  });
-</script>
 <script src="assets/js/cart.js"></script>
 
 </html>

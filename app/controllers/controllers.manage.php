@@ -3,6 +3,7 @@ session_start();
 
 if (!isset($_SESSION['loggedin']) || !isset($_SESSION['user_session']) || $_SESSION['loggedin'] != true || empty($_SESSION['user_session'])) {
     header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/login");
+    exit();
 }
 
 if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
@@ -22,9 +23,58 @@ require_once('app/models/Database.php'); // Database Model
 require_once('app/models/Product.php'); // Product Model
 require_once('app/models/Sales.php'); // Sales Model
 require_once('app/models/Users.php'); // Users Model
-require_once('app/models/ProductCategory.php'); // Product Category DB Model
+require_once('app/models/ProductCategory.php'); // Product Category DB Model (unrelated chart-cache table, see FIXME below)
+require_once('app/models/Category.php'); // Category Model (controlled category master data)
+require_once('app/models/ProductImage.php'); // Product gallery images Model
 require_once('app/models/lib.php'); // function lib
 require_once('app/models/Stock.php'); // Stock Model
+
+// Validates and saves each file in a multi-file upload field (e.g.
+// $_FILES['productImages']), returning the list of saved public paths.
+// Dies with the same messages as the pre-existing single-file upload
+// code on invalid input, so behavior stays consistent across both.
+function uploadProductImages($filesField) {
+    $savedPaths = [];
+
+    if (!isset($_FILES[$filesField]) || empty($_FILES[$filesField]['name'][0])) {
+        return $savedPaths;
+    }
+
+    $targetDir = "assets/img/products/";
+    $allowTypes = array('jpg', 'png', 'jpeg', 'gif');
+    $fileCount = count($_FILES[$filesField]['name']);
+
+    for ($i = 0; $i < $fileCount; $i++) {
+        if ($_FILES[$filesField]['error'][$i] !== 0) {
+            continue;
+        }
+
+        $fileName = basename($_FILES[$filesField]['name'][$i]);
+        $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        if (!in_array($fileType, $allowTypes)) {
+            die("Sorry, only JPG, JPEG, PNG, & GIF files are allowed to upload.");
+        }
+
+        $randomString = bin2hex(random_bytes(8));
+        $newFileName = md5($fileName . $randomString) . '.' . $fileType;
+        $targetFilePath = $targetDir . $newFileName;
+
+        if (move_uploaded_file($_FILES[$filesField]['tmp_name'][$i], $targetFilePath)) {
+            $savedPaths[] = 'assets/img/products/' . $newFileName;
+        } else {
+            die("Sorry, there was an error uploading your file.");
+        }
+    }
+
+    return $savedPaths;
+}
+
+// FIXME (flagged, not fixed here): ProductCategory::populateProductCategoryTable(),
+// called as a side effect of requiring ProductCategory.php above, builds its
+// INSERT statement via raw string interpolation ("...VALUES ('$category', ...)")
+// instead of a prepared statement — a real SQL injection risk on every load of
+// this page. Needs a real fix as its own follow-up, not folded into this change.
 
 $_SESSION['products'] = $ProductModel->getAllProducts();
 $_SESSION['sales'] = $SalesModel->getAllSales();
@@ -35,6 +85,7 @@ $products = $_SESSION['products'] ?? [];
 $sales = $_SESSION['sales'] ?? [];
 $users = $_SESSION['users'] ?? [];
 $latest_activities = $_SESSION['latest_activities'] ?? [];
+$categories = $CategoryModel->getAllCategories();
 
 // total sales and products price
 $total_sales_price = array_sum(array_column($sales, 'total_price'));
@@ -61,32 +112,9 @@ if (isset($_POST['addProduct']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $uploaderName = user_input_sanitize($_POST['uploaderName']);
 
 
-    // Handle file upload
-    if (isset($_FILES['productImage']) && $_FILES['productImage']['error'] == 0) {
-        $targetDir = "assets/img/products/";
-        $fileName = basename($_FILES["productImage"]["name"]);
-        $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
-
-        // Allow certain file formats
-        $allowTypes = array('jpg', 'png', 'jpeg', 'gif');
-        if (in_array($fileType, $allowTypes)) {
-            // Generate a unique file name
-            $randomString = bin2hex(random_bytes(8)); // Generate a random string
-            $newFileName = md5($fileName . $randomString) . '.' . $fileType; // Concatenate and hash
-            $targetFilePath = $targetDir . $newFileName;
-
-            // Upload file to server
-            if (move_uploaded_file($_FILES["productImage"]["tmp_name"], $targetFilePath)) {
-                $productImage = 'assets/img/products/' . $newFileName;
-            } else {
-                die("Sorry, there was an error uploading your file.");
-            }
-        } else {
-            die("Sorry, only JPG, JPEG, PNG, & GIF files are allowed to upload.");
-        }
-    } else {
-        $productImage = 'assets/img/defaults/product.jpg';
-    }
+    // Handle (possibly multiple) file upload
+    $uploadedImagePaths = uploadProductImages('productImages');
+    $productImage = !empty($uploadedImagePaths) ? $uploadedImagePaths[0] : 'assets/img/defaults/product.jpg';
 
     // search maybe the man, name and category already exists before ,then update it
     $nameCheck = $ProductModel->getProductByCriteria($productName, 'name');
@@ -119,6 +147,12 @@ if (isset($_POST['addProduct']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
                 'remaining_quantity' => $ProductModel->getProductById($productID)['quantity']
             ])
         ) {
+            $displayOrder = $ProductImageModel->getNextDisplayOrder($productID);
+            foreach ($uploadedImagePaths as $imagePath) {
+                $ProductImageModel->addImage($productID, $imagePath, $displayOrder);
+                $displayOrder++;
+            }
+
             $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
             header("Location: " . $basePath . "/manage?type=products&status=success&init=updateProduct");
             exit();
@@ -145,6 +179,12 @@ if (isset($_POST['addProduct']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $productId = $ProductModel->getProductByCriteria($productImage, 'product_picture_url')[0]['id'];
         // print_r($productId1);
+
+        $displayOrder = 0;
+        foreach ($uploadedImagePaths as $imagePath) {
+            $ProductImageModel->addImage($productId, $imagePath, $displayOrder);
+            $displayOrder++;
+        }
 
         // take stock
         $StockModel->recordStockActivity([
@@ -254,6 +294,25 @@ if (isset($_POST['addSales']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+if (isset($_POST['addCategory']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    $categoryName = user_input_sanitize($_POST['categoryName']);
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    if ($categoryName === '') {
+        header('Location: ' . $basePath . '/manage?type=categories&status=failed&message=' . urlencode('Category name cannot be empty.'));
+        exit();
+    }
+
+    try {
+        $CategoryModel->addCategory($categoryName);
+        header('Location: ' . $basePath . '/manage?type=categories&status=success');
+        exit();
+    } catch (Exception $e) {
+        header('Location: ' . $basePath . '/manage?type=categories&status=failed&message=' . urlencode($e->getMessage()));
+        exit();
+    }
+}
+
 if (isset($_POST['editProductInfo']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     // Collect and sanitize input data
     $productName = user_input_sanitize($_POST['productName']);
@@ -266,31 +325,16 @@ if (isset($_POST['editProductInfo']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $productID = user_input_sanitize($_POST['productID']);
 
 
-    // Handle file upload
-    if (isset($_FILES['productImage']) && $_FILES['productImage']['error'] == 0) {
-        $targetDir = "assets/img/products/";
-        $fileName = basename($_FILES["productImage"]["name"]);
-        $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
-
-        // Allow certain file formats
-        $allowTypes = array('jpg', 'png', 'jpeg', 'gif');
-        if (in_array($fileType, $allowTypes)) {
-            // Generate a unique file name
-            $randomString = bin2hex(random_bytes(8)); // Generate a random string
-            $newFileName = md5($fileName . $randomString) . '.' . $fileType; // Concatenate and hash
-            $targetFilePath = $targetDir . $newFileName;
-
-            // Upload file to server
-            if (move_uploaded_file($_FILES["productImage"]["tmp_name"], $targetFilePath)) {
-                $productImage = 'assets/img/products/' . $newFileName;
-            } else {
-                die("Sorry, there was an error uploading your file.");
-            }
-        } else {
-            die("Sorry, only JPG, JPEG, PNG, & GIF files are allowed to upload.");
-        }
+    // Handle (possibly multiple) new file uploads. Editing a product no
+    // longer requires re-selecting an image every time — if none are
+    // uploaded, the existing product_picture_url is left untouched instead
+    // of being reset to the default placeholder.
+    $uploadedImagePaths = uploadProductImages('productImages');
+    if (!empty($uploadedImagePaths)) {
+        $productImage = $uploadedImagePaths[0];
     } else {
-        $productImage = 'assets/img/defaults/product.jpg';
+        $existingProduct = $ProductModel->getProductById($productID);
+        $productImage = $existingProduct['product_picture_url'];
     }
 
     $updateStockValues = [
@@ -315,6 +359,12 @@ if (isset($_POST['editProductInfo']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
         $ProductModel->arrayUpdateProduct($editingProductArr, $productID) &&
         $StockModel->recordStockActivity($updateStockValues)
     ) {
+        $displayOrder = $ProductImageModel->getNextDisplayOrder($productID);
+        foreach ($uploadedImagePaths as $imagePath) {
+            $ProductImageModel->addImage($productID, $imagePath, $displayOrder);
+            $displayOrder++;
+        }
+
         $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
         header("Location: " . $basePath . "/manage?type=products&status=success&init=updateProduct");
         exit();

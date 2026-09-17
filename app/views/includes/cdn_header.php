@@ -17,7 +17,7 @@ $baseHref = ($basePath === '') ? '/' : $basePath . '/';
 <link
     href="https://fonts.googleapis.com/css2?family=Reddit+Sans:ital,wght@0,200..900;1,200..900&family=Outfit:wght@600;700;800&family=Geist:wght@400;500;600;700&display=swap"
     rel="stylesheet">
-<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/theme.css?v=<?php echo @filemtime(__DIR__ . '/../../../assets/css/theme.css') ?: time(); ?>">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16x16.png">
