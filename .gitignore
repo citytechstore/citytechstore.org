@@ -22,5 +22,8 @@ desktop.ini
 .vscode/
 .idea/
 
+# Claude Code local tool/session settings (machine-local, not project code)
+.claude/
+
 # Old scratch/unused files
 trashs/
