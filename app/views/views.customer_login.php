@@ -21,8 +21,10 @@
                 <?php
                     $allowedRedirects = ['checkout'];
                     $loginFormAction = 'customer-login';
+                    $googleAuthUrl = 'auth/google/start';
                     if (isset($_GET['redirect']) && in_array($_GET['redirect'], $allowedRedirects, true)) {
                         $loginFormAction .= '?redirect=' . urlencode($_GET['redirect']);
+                        $googleAuthUrl .= '?redirect=' . urlencode($_GET['redirect']);
                     }
                 ?>
                 <form action="<?php echo htmlspecialchars($loginFormAction); ?>" method="post" class="mt-4">
@@ -37,6 +39,10 @@
                     </div>
                     <button type="submit" class="btn btn-primary btn-block mt-5 btn-lg w-100">Login</button>
                 </form>
+                <div class="text-center text-muted my-3">or</div>
+                <a href="<?php echo htmlspecialchars($googleAuthUrl); ?>" class="btn btn-outline-secondary btn-lg w-100">
+                    <i class="fab fa-google"></i> Sign in with Google
+                </a>
                 <p class="text-center mt-3">Don't have an account? <a href="register">Register here</a></p>
             </div>
         </div>

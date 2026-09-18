@@ -43,6 +43,10 @@
                     </div>
                     <button type="submit" class="btn btn-primary btn-block mt-5 btn-lg w-100">Register</button>
                 </form>
+                <div class="text-center text-muted my-3">or</div>
+                <a href="auth/google/start" class="btn btn-outline-secondary btn-lg w-100">
+                    <i class="fab fa-google"></i> Sign up with Google
+                </a>
                 <p class="text-center mt-3">Already have an account? <a href="customer-login">Login here</a></p>
             </div>
         </div>
