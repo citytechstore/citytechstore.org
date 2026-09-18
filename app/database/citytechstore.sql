@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     lastname VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20),
     role ENUM('admin', 'worker') NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
         profile_picture VARCHAR(255) DEFAULT 'assets/img/defaults/user.jpg',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -23,7 +23,6 @@ return [
     '/checkout/process' => 'app/controllers/controllers.checkout_process.php',
     '/checkout/callback' => 'app/controllers/controllers.checkout_callback.php',
     '/additem' => 'app/controllers/controllers.addproduct.php',
-    '/adduser' => 'app/controllers/controllers.adduser.php',
     '/storesection' => 'app/controllers/controllers.storesections.php',
     '/addsales' => 'app/controllers/controllers.addsales.php',
     '/listproducts' => 'app/controllers/controllers.listproduct.php',

@@ -487,61 +487,130 @@
 </div>';
         } else if (isset($_GET['type']) && (strtolower($_GET['type']) == 'user' || strtolower($_GET['type']) == 'users') && !isset($_GET['action'])) {
 
-            if ($_SESSION['user_session']['role'] == 'admin') {
-                $trs = '';
-                $html_data1 = '
-                <div class="container">
-              <div class="row mb-5">
-                  <div class="col-md-12">
-                      <h4 class="mb-3">Manage All Users</h4>
-                      <a href="adduser" class="btn btn-info">Add Users</a>
+            echo '
+            <div class="container-fluid">
+            <div class="row border-bottom pb-1">
+            <div class="col-12"><h2 class="mb-4">Staff Management</h2></div>
+            </div>
+            </div>
+            ';
 
-                      <table class="table">
-                          <thead>
-                              <tr>
-                                  <th scope="col">ID</th>
-                                  <th scope="col">Firstname</th>
-                                  <th scope="col">Lastname</th>
-                                  <th scope="col">Username</th>
-                                  <th scope="col">Email</th>
-                                  <th scope="col">Phone</th>
-                                  <th scope="col">Role</th>
-                                  <th scope="col">Date Created</th>
-                                  <th scope="col">Action</th>
-                              </tr>
-                          </thead>
-                          <tbody>';
-        
-                foreach ($users as $user) {
-                    $trs .= '
-                                  <tr>
-                                      <td>' . ucfirst($user['id']) . '</td>
-                                      <td>' . ucfirst($user['firstname']) . '</td>
-                                      <td>' . ucfirst($user['lastname']) . '</td>
-                                      <td>' . ucfirst($user['username']) . '</td>
-                                      <td>' . ucfirst($user['email']) . '</td>
-                                      <td>' . ucfirst($user['phone_number']) . '</td>
-                                      <td>' . ucfirst($user['role']) . '</td>
-                                      <td>' . ucfirst($user['created_at']) . '</td>
-                                     <td class="text-center"><a href="adduser?action=delete&id=' . $user['id'] . '"><i class="fa fa-trash text-danger"></i></a></td>
-                                  </tr>';
+            if (isset($_GET['status'])) {
+                if ($_GET['status'] === 'success') {
+                    $staffSuccessMessage = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Staff member added successfully.';
+                    echo '<div class="alert alert-success">' . $staffSuccessMessage . '</div>';
+                } elseif ($_GET['status'] === 'failed') {
+                    $staffErrorMessage = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Something went wrong.';
+                    echo '<div class="alert alert-danger">' . $staffErrorMessage . '</div>';
                 }
-                $html_data2 = ' </tbody>
-                      </table>
-                      <a href="adduser" class="btn btn-info">Add Users</a>
-                  </div>
-                  </div>
-              </div>';
-        
-              echo $html_data1.$trs.$html_data2;
             }
-            // <th scope="col">Picture</th>
-        
-        //     <td>
-        //     <img src="' . $user['profile_picture'] . '"
-        //         alt="' .  ucfirst($user['firstname']) . ' not found" width="45px"
-        //         hehight="45px" class="rounded-pill">
-        // </td>
+
+            echo '
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Firstname</th>
+                        <th scope="col">Lastname</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Date Created</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+            foreach ($users as $user) {
+                $isSelf = (int) $user['id'] === (int) $_SESSION['user_session']['id'];
+                $isActive = (int) $user['is_active'] === 1;
+
+                if ($isSelf) {
+                    $actionCell = '<span class="text-muted">This is you</span>';
+                } elseif ($isActive) {
+                    $actionCell = '<form action="manage" method="POST" class="d-inline" onsubmit="return confirm(\'Deactivate this staff member? They will no longer be able to log in.\');">
+                        <input type="hidden" name="userId" value="' . (int) $user['id'] . '">
+                        <button type="submit" name="deactivateStaff" class="btn btn-sm btn-outline-danger">Deactivate</button>
+                    </form>';
+                } else {
+                    $actionCell = '<form action="manage" method="POST" class="d-inline">
+                        <input type="hidden" name="userId" value="' . (int) $user['id'] . '">
+                        <button type="submit" name="activateStaff" class="btn btn-sm btn-outline-success">Reactivate</button>
+                    </form>';
+                }
+
+                echo '<tr>
+                    <td>' . (int) $user['id'] . '</td>
+                    <td>' . htmlspecialchars(ucfirst($user['firstname'])) . '</td>
+                    <td>' . htmlspecialchars(ucfirst($user['lastname'])) . '</td>
+                    <td>' . htmlspecialchars($user['username']) . '</td>
+                    <td>' . htmlspecialchars($user['email']) . '</td>
+                    <td>' . htmlspecialchars($user['phone_number']) . '</td>
+                    <td>' . htmlspecialchars(ucfirst($user['role'])) . '</td>
+                    <td>' . ($isActive ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>') . '</td>
+                    <td>' . htmlspecialchars($user['created_at']) . '</td>
+                    <td class="text-center">' . $actionCell . '</td>
+                </tr>';
+            }
+            echo '</tbody></table>';
+
+            echo '
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+              Add Staff
+            </button>
+
+            <div class="modal fade" id="addStaffModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="addStaffModalLabel">Add Staff</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                  <form action="manage" method="POST">
+                      <div class="mb-3">
+                          <label for="staffUsername" class="form-label">Username</label>
+                          <input type="text" class="form-control" id="staffUsername" name="username" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="staffPassword" class="form-label">Password</label>
+                          <input type="password" class="form-control" id="staffPassword" name="password" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="staffEmail" class="form-label">Email</label>
+                          <input type="email" class="form-control" id="staffEmail" name="email" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="staffFirstname" class="form-label">First Name</label>
+                          <input type="text" class="form-control" id="staffFirstname" name="firstname" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="staffLastname" class="form-label">Last Name</label>
+                          <input type="text" class="form-control" id="staffLastname" name="lastname" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="staffPhone" class="form-label">Phone Number</label>
+                          <input type="tel" class="form-control" id="staffPhone" name="phone_number" required>
+                      </div>
+                      <div class="mb-3">
+                          <label for="staffRole" class="form-label">Role</label>
+                          <select class="form-select" id="staffRole" name="role" required>
+                              <option value="admin">Admin</option>
+                              <option value="worker">Worker</option>
+                          </select>
+                      </div>
+                      <button type="submit" class="btn btn-primary" name="addStaff">Add Staff</button>
+                  </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+              </div>
+              </div>
+            </div>
+            ';
         } else {
             if (!isset($_GET['type'])) {
 

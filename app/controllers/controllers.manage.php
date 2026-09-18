@@ -417,6 +417,90 @@ if (isset($_POST['editProductInfo']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+if (isset($_POST['addStaff']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    requireRole(['admin']);
+
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    $rawFields = [
+        'username' => $_POST['username'] ?? '',
+        'password' => $_POST['password'] ?? '',
+        'email' => $_POST['email'] ?? '',
+        'firstname' => $_POST['firstname'] ?? '',
+        'lastname' => $_POST['lastname'] ?? '',
+        'phone_number' => $_POST['phone_number'] ?? '',
+        'role' => $_POST['role'] ?? '',
+    ];
+
+    foreach ($rawFields as $key => $value) {
+        if (trim($value) === '') {
+            header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode(ucfirst(str_replace('_', ' ', $key)) . ' is required.'));
+            exit();
+        }
+    }
+
+    if (!in_array($rawFields['role'], ['admin', 'worker'], true)) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode('Invalid role selected.'));
+        exit();
+    }
+
+    $newStaff = [
+        'username' => htmlspecialchars($rawFields['username'], ENT_QUOTES, 'UTF-8'),
+        'email' => filter_var($rawFields['email'], FILTER_SANITIZE_EMAIL),
+        'firstname' => htmlspecialchars($rawFields['firstname'], ENT_QUOTES, 'UTF-8'),
+        'lastname' => htmlspecialchars($rawFields['lastname'], ENT_QUOTES, 'UTF-8'),
+        'password' => password_hash($rawFields['password'], PASSWORD_BCRYPT),
+        'phone_number' => htmlspecialchars($rawFields['phone_number'], ENT_QUOTES, 'UTF-8'),
+        'role' => $rawFields['role'],
+    ];
+
+    try {
+        $UsersModel->createUser($newStaff);
+        header('Location: ' . $basePath . '/manage?type=users&status=success');
+        exit();
+    } catch (Exception $e) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode($e->getMessage()));
+        exit();
+    }
+}
+
+if (isset($_POST['deactivateStaff']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    requireRole(['admin']);
+
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+    $staffId = filter_var($_POST['userId'] ?? null, FILTER_VALIDATE_INT);
+
+    if (!$staffId) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode('Invalid staff member.'));
+        exit();
+    }
+
+    if ($staffId === (int) $_SESSION['user_session']['id']) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode('You cannot deactivate your own account.'));
+        exit();
+    }
+
+    $UsersModel->deactivateUser($staffId);
+    header('Location: ' . $basePath . '/manage?type=users&status=success&message=' . urlencode('Staff member deactivated.'));
+    exit();
+}
+
+if (isset($_POST['activateStaff']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    requireRole(['admin']);
+
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+    $staffId = filter_var($_POST['userId'] ?? null, FILTER_VALIDATE_INT);
+
+    if (!$staffId) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode('Invalid staff member.'));
+        exit();
+    }
+
+    $UsersModel->activateUser($staffId);
+    header('Location: ' . $basePath . '/manage?type=users&status=success&message=' . urlencode('Staff member reactivated.'));
+    exit();
+}
+
 
 // $nameCheck = $ProductModel->getProductByCriteria('iphone 12', 'name')[0]["id"];
 // $manCheck = $ProductModel->getProductByCriteria('Apple', 'manufacturer');

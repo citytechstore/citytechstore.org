@@ -133,14 +133,32 @@ class Users
 
         if ($result->num_rows == 1) {
             $user = $result->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
-                return $user;
-            } else {
+            if (!password_verify($password, $user['password'])) {
                 throw new Exception("Invalid password");
             }
+            if ((int) $user['is_active'] !== 1) {
+                throw new Exception("This account has been deactivated.");
+            }
+            return $user;
         } else {
             throw new Exception("User not found");
         }
+    }
+
+    public function deactivateUser($userId)
+    {
+        $sql = "UPDATE users SET is_active = 0 WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $userId);
+        return $stmt->execute();
+    }
+
+    public function activateUser($userId)
+    {
+        $sql = "UPDATE users SET is_active = 1 WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $userId);
+        return $stmt->execute();
     }
     public function checkUserExistsWithSameRole($username, $email, $role) {
         $count = null;
