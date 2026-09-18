@@ -117,6 +117,18 @@ class Order
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    // All orders belonging to one customer, newest first, for the
+    // customer-facing "My Orders" list.
+    public function getOrdersByCustomerId($customerId)
+    {
+        $sql = "SELECT * FROM orders WHERE customer_id = ? ORDER BY created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $customerId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     // Single order with customer contact info and delivery address, for the
     // staff order-detail view. Kept separate from getOrderById() (used by
     // the live checkout/payment flow) so that flow's simple orders.* shape

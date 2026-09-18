@@ -14,7 +14,7 @@ function googleAuthFail($basePath, $message) {
     // who came from checkout and hits a Google sign-in error can still log
     // in with a password and land back at checkout, instead of losing that
     // destination entirely. Same allowlist as everywhere else this is used.
-    $allowedRedirects = ['checkout'];
+    $allowedRedirects = ['checkout', 'my-orders'];
     $storedRedirect = $_SESSION['google_oauth_redirect'] ?? null;
     $query = 'message=' . urlencode($message);
     if ($storedRedirect !== null && in_array($storedRedirect, $allowedRedirects, true)) {
@@ -152,7 +152,7 @@ $_SESSION['customer_session'] = $customer;
 // controllers.google_auth_start.php after already validating it —
 // defense in depth against a future change accidentally trusting an
 // unvalidated value.
-$allowedRedirects = ['checkout'];
+$allowedRedirects = ['checkout', 'my-orders'];
 $redirectTarget = '/';
 $storedRedirect = $_SESSION['google_oauth_redirect'] ?? null;
 unset($_SESSION['google_oauth_redirect']);

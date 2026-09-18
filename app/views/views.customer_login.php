@@ -19,7 +19,7 @@
                     <div class="alert alert-info"><?php echo htmlspecialchars($_GET['message']); ?></div>
                 <?php endif; ?>
                 <?php
-                    $allowedRedirects = ['checkout'];
+                    $allowedRedirects = ['checkout', 'my-orders'];
                     $loginFormAction = 'customer-login';
                     $googleAuthUrl = 'auth/google/start';
                     if (isset($_GET['redirect']) && in_array($_GET['redirect'], $allowedRedirects, true)) {

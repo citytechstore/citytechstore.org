@@ -10,6 +10,7 @@ return [
     '/register' => 'app/controllers/controllers.customer_register.php',
     '/customer-login' => 'app/controllers/controllers.customer_login.php',
     '/logout-customer' => 'app/controllers/controllers.logout_customer.php',
+    '/my-orders' => 'app/controllers/controllers.customer_orders.php',
     '/auth/google/start' => 'app/controllers/controllers.google_auth_start.php',
     '/auth/google/callback' => 'app/controllers/controllers.google_auth_callback.php',
     '/shop' => 'app/controllers/controllers.shop.php',

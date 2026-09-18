@@ -15,7 +15,7 @@ $_SESSION['google_oauth_state'] = $state;
 // handling. Stored server-side rather than round-tripped through Google's
 // redirect_uri, since Google requires that URI to match the registered
 // one exactly — appending a query string to it would break the request.
-$allowedRedirects = ['checkout'];
+$allowedRedirects = ['checkout', 'my-orders'];
 if (isset($_GET['redirect']) && in_array($_GET['redirect'], $allowedRedirects, true)) {
     $_SESSION['google_oauth_redirect'] = $_GET['redirect'];
 } else {

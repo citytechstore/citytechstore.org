@@ -93,6 +93,10 @@ if ($currentPath !== '/') {
       <span>My Account</span>
       <i class="fas fa-chevron-right mobile-menu-chevron"></i>
     </a>
+    <a href="my-orders" class="mobile-menu-link">
+      <i class="fas fa-box"></i>
+      <span>My Orders</span>
+    </a>
     <a href="login" class="mobile-menu-link">
       <i class="fas fa-sign-in-alt"></i>
       <span>Login / Signup</span>
@@ -160,6 +164,10 @@ if ($currentPath !== '/') {
           <a href="customer-login" class="site-header-icon" title="Account">
             <i class="fas fa-user"></i>
             <span>Account</span>
+          </a>
+          <a href="my-orders" class="site-header-icon" title="My Orders">
+            <i class="fas fa-box"></i>
+            <span>My Orders</span>
           </a>
           <a href="#" class="site-header-icon" title="Wishlist (coming soon)">
             <i class="fas fa-heart"></i>

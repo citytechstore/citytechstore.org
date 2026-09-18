@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['customer_session'] = $customer;
 
             // Allowlist-only redirect target, to avoid an open-redirect via ?redirect=
-            $allowedRedirects = ['checkout'];
+            $allowedRedirects = ['checkout', 'my-orders'];
             $redirectTarget = '/';
             if (isset($_GET['redirect']) && in_array($_GET['redirect'], $allowedRedirects, true)) {
                 $redirectTarget = '/' . $_GET['redirect'];
