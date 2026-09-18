@@ -101,6 +101,64 @@ class Order
         return $result->fetch_assoc();
     }
 
+    // All orders for staff order management, newest first, with enough
+    // customer info to identify who placed each one without a second query
+    // per row.
+    public function getAllOrders()
+    {
+        $sql = "SELECT orders.*,
+                       customers.first_name AS customer_first_name,
+                       customers.last_name AS customer_last_name,
+                       customers.email AS customer_email
+                FROM orders
+                JOIN customers ON customers.id = orders.customer_id
+                ORDER BY orders.created_at DESC";
+        $result = $this->db->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Single order with customer contact info and delivery address, for the
+    // staff order-detail view. Kept separate from getOrderById() (used by
+    // the live checkout/payment flow) so that flow's simple orders.* shape
+    // never changes.
+    public function getOrderWithDetails($orderId)
+    {
+        $sql = "SELECT orders.*,
+                       customers.first_name AS customer_first_name,
+                       customers.last_name AS customer_last_name,
+                       customers.email AS customer_email,
+                       customers.phone_number AS customer_phone_number,
+                       addresses.label AS address_label,
+                       addresses.full_address AS address_full_address,
+                       addresses.city AS address_city,
+                       addresses.state AS address_state,
+                       addresses.phone_number AS address_phone_number
+                FROM orders
+                JOIN customers ON customers.id = orders.customer_id
+                JOIN addresses ON addresses.id = orders.address_id
+                WHERE orders.id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $orderId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    // $newStatus is checked against the exact orders.status ENUM values —
+    // never interpolated or bound as an arbitrary caller-supplied string.
+    public function updateOrderStatus($orderId, $newStatus)
+    {
+        $allowedStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+        if (!in_array($newStatus, $allowedStatuses, true)) {
+            throw new Exception('Invalid order status.');
+        }
+
+        $sql = "UPDATE orders SET status = ? WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("si", $newStatus, $orderId);
+        return $stmt->execute();
+    }
+
     public function getOrderItems($orderId)
     {
         $sql = "SELECT order_items.id, order_items.product_id, order_items.quantity, order_items.price_at_purchase,

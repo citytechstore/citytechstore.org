@@ -27,6 +27,7 @@ require_once('app/models/ProductCategory.php'); // Product Category DB Model (un
 require_once('app/models/Category.php'); // Category Model (controlled category master data)
 require_once('app/models/ProductImage.php'); // Product gallery images Model
 require_once('app/models/CategoryBanner.php'); // Category banner Model
+require_once('app/models/Order.php'); // Order Model (storefront orders)
 require_once('app/models/lib.php'); // function lib
 require_once('app/models/Stock.php'); // Stock Model
 
@@ -89,6 +90,7 @@ $sales = $_SESSION['sales'] ?? [];
 $users = $_SESSION['users'] ?? [];
 $latest_activities = $_SESSION['latest_activities'] ?? [];
 $categories = $CategoryModel->getAllCategories();
+$orders = $OrderModel->getAllOrders();
 
 // total sales and products price
 $total_sales_price = array_sum(array_column($sales, 'total_price'));
@@ -101,6 +103,10 @@ $total_users = count($users);
 
 if (isset($_GET['type']) && (strtolower($_GET['type']) == 'users' || strtolower($_GET['type']) == 'user')) {
     requireRole(['admin']);
+}
+
+if (isset($_GET['type']) && strtolower($_GET['type']) == 'orders') {
+    requireRole(['admin', 'worker']);
 }
 
 
@@ -499,6 +505,28 @@ if (isset($_POST['activateStaff']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $UsersModel->activateUser($staffId);
     header('Location: ' . $basePath . '/manage?type=users&status=success&message=' . urlencode('Staff member reactivated.'));
     exit();
+}
+
+if (isset($_POST['updateOrderStatus']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    requireRole(['admin']);
+
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+    $orderId = filter_var($_POST['orderId'] ?? null, FILTER_VALIDATE_INT);
+    $newStatus = $_POST['status'] ?? '';
+
+    if (!$orderId) {
+        header('Location: ' . $basePath . '/manage?type=orders&status=failed&message=' . urlencode('Invalid order.'));
+        exit();
+    }
+
+    try {
+        $OrderModel->updateOrderStatus($orderId, $newStatus);
+        header('Location: ' . $basePath . '/manage?type=orders&status=success&message=' . urlencode('Order status updated.'));
+        exit();
+    } catch (Exception $e) {
+        header('Location: ' . $basePath . '/manage?type=orders&status=failed&message=' . urlencode($e->getMessage()));
+        exit();
+    }
 }
 
 

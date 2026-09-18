@@ -17,6 +17,8 @@
         $page_title = 'CTS - Categories management';
     } else if (isset($_GET['type']) && strtolower($_GET['type']) == 'category_banners') {
         $page_title = 'CTS - Category Banners management';
+    } else if (isset($_GET['type']) && strtolower($_GET['type']) == 'orders') {
+        $page_title = 'CTS - Orders management';
     }
     ?>
     <title><?php echo $page_title; ?></title>
@@ -611,6 +613,152 @@
               </div>
             </div>
             ';
+        } else if (isset($_GET['type']) && strtolower($_GET['type']) == 'orders' && !isset($_GET['action'])) {
+
+            echo '
+            <div class="container-fluid">
+            <div class="row border-bottom pb-1">
+            <div class="col-12"><h2 class="mb-4">Orders Management</h2></div>
+            </div>
+            </div>
+            ';
+
+            if (isset($_GET['status'])) {
+                if ($_GET['status'] === 'success') {
+                    $orderSuccessMessage = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Order updated successfully.';
+                    echo '<div class="alert alert-success">' . $orderSuccessMessage . '</div>';
+                } elseif ($_GET['status'] === 'failed') {
+                    $orderErrorMessage = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Something went wrong.';
+                    echo '<div class="alert alert-danger">' . $orderErrorMessage . '</div>';
+                }
+            }
+
+            $isAdminUser = ($_SESSION['user_session']['role'] === 'admin');
+            $statusBadgeClass = [
+                'pending' => 'bg-secondary',
+                'confirmed' => 'bg-info',
+                'shipped' => 'bg-primary',
+                'delivered' => 'bg-success',
+                'cancelled' => 'bg-danger',
+            ];
+            $paymentBadgeClass = [
+                'pending' => 'bg-secondary',
+                'paid' => 'bg-success',
+                'failed' => 'bg-danger',
+            ];
+            $orderStatusOptions = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+
+            echo '
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Order #</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Payment</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+            foreach ($orders as $order) {
+                $statusClass = $statusBadgeClass[$order['status']] ?? 'bg-secondary';
+                $paymentClass = $paymentBadgeClass[$order['payment_status']] ?? 'bg-secondary';
+
+                echo '<tr>
+                    <td>' . htmlspecialchars($order['order_number']) . '</td>
+                    <td>' . htmlspecialchars($order['customer_first_name'] . ' ' . $order['customer_last_name']) . '<br><small class="text-muted">' . htmlspecialchars($order['customer_email']) . '</small></td>
+                    <td>&#8358;' . number_format($order['total'], 2) . '</td>
+                    <td><span class="badge ' . $paymentClass . '">' . htmlspecialchars(ucfirst($order['payment_status'])) . '</span></td>
+                    <td><span class="badge ' . $statusClass . '">' . htmlspecialchars(ucfirst($order['status'])) . '</span></td>
+                    <td>' . htmlspecialchars($order['created_at']) . '</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#orderModal' . (int) $order['id'] . '">
+                            View
+                        </button>
+                    </td>
+                </tr>';
+            }
+            echo '</tbody></table>';
+            if (count($orders) == 0) {
+                echo '<h4 class="text-muted text-center mt-5 mb-5">No orders yet.</h4>';
+            }
+
+            foreach ($orders as $order) {
+                $orderDetail = $OrderModel->getOrderWithDetails($order['id']);
+                $orderItems = $OrderModel->getOrderItems($order['id']);
+
+                $itemRows = '';
+                foreach ($orderItems as $item) {
+                    $lineSubtotal = $item['price_at_purchase'] * $item['quantity'];
+                    $itemRows .= '<tr>
+                        <td>' . htmlspecialchars($item['name']) . '</td>
+                        <td>' . (int) $item['quantity'] . '</td>
+                        <td>&#8358;' . number_format($item['price_at_purchase'], 2) . '</td>
+                        <td>&#8358;' . number_format($lineSubtotal, 2) . '</td>
+                    </tr>';
+                }
+
+                $statusOptionsHtml = '';
+                foreach ($orderStatusOptions as $statusOption) {
+                    $selectedAttr = ($statusOption === $order['status']) ? ' selected' : '';
+                    $statusOptionsHtml .= '<option value="' . $statusOption . '"' . $selectedAttr . '>' . ucfirst($statusOption) . '</option>';
+                }
+
+                $statusControlHtml = $isAdminUser ? '
+                    <form action="manage" method="POST" class="d-flex gap-2 align-items-center mt-2">
+                        <input type="hidden" name="orderId" value="' . (int) $order['id'] . '">
+                        <select class="form-select form-select-sm" name="status" style="width: auto;">' . $statusOptionsHtml . '</select>
+                        <button type="submit" class="btn btn-sm btn-primary" name="updateOrderStatus">Update Status</button>
+                    </form>
+                ' : '';
+
+                echo '
+                <div class="modal fade" id="orderModal' . (int) $order['id'] . '" tabindex="-1" aria-labelledby="orderModalLabel' . (int) $order['id'] . '" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="orderModalLabel' . (int) $order['id'] . '">Order ' . htmlspecialchars($order['order_number']) . '</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                          <h6>Customer</h6>
+                          <p class="mb-1">' . htmlspecialchars($orderDetail['customer_first_name'] . ' ' . $orderDetail['customer_last_name']) . '</p>
+                          <p class="mb-1">' . htmlspecialchars($orderDetail['customer_email']) . '</p>
+                          <p class="mb-3">' . htmlspecialchars($orderDetail['customer_phone_number'] ?? '') . '</p>
+
+                          <h6>Delivery Address</h6>
+                          <p class="mb-1">' . htmlspecialchars($orderDetail['address_label']) . '</p>
+                          <p class="mb-1">' . htmlspecialchars($orderDetail['address_full_address']) . '</p>
+                          <p class="mb-1">' . htmlspecialchars($orderDetail['address_city'] . ', ' . $orderDetail['address_state']) . '</p>
+                          <p class="mb-3">' . htmlspecialchars($orderDetail['address_phone_number'] ?? '') . '</p>
+
+                          <h6>Items</h6>
+                          <table class="table table-sm">
+                              <thead>
+                                  <tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr>
+                              </thead>
+                              <tbody>' . $itemRows . '</tbody>
+                          </table>
+
+                          <p class="mb-1"><strong>Subtotal:</strong> &#8358;' . number_format($order['subtotal'], 2) . '</p>
+                          <p class="mb-1"><strong>Delivery Fee:</strong> &#8358;' . number_format($order['delivery_fee'], 2) . '</p>
+                          <p class="mb-3"><strong>Total:</strong> &#8358;' . number_format($order['total'], 2) . '</p>
+
+                          <h6>Status</h6>
+                          <span class="badge ' . ($statusBadgeClass[$order['status']] ?? 'bg-secondary') . '">' . htmlspecialchars(ucfirst($order['status'])) . '</span>
+                          ' . $statusControlHtml . '
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                  </div>
+                  </div>
+                </div>
+                ';
+            }
         } else {
             if (!isset($_GET['type'])) {
 
@@ -623,6 +771,7 @@
             <a href="manage?type=sales" class="btn btn-info">Sales</a>
             <a href="manage?type=categories" class="btn btn-secondary">Categories</a>
             <a href="manage?type=category_banners" class="btn btn-dark">Category Banners</a>
+            <a href="manage?type=orders" class="btn btn-primary">Orders</a>
             <a href="manage?type=users" class="btn btn-warning">Users</a>
             </div>';
                 } else {
@@ -633,6 +782,7 @@
         <a href="manage?type=sales" class="btn btn-info">Sales</a>
         <a href="manage?type=categories" class="btn btn-secondary">Categories</a>
         <a href="manage?type=category_banners" class="btn btn-dark">Category Banners</a>
+        <a href="manage?type=orders" class="btn btn-primary">Orders</a>
         </div>';
                 }
             }
