@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once 'app/models/Database.php';
 require_once 'app/models/Cart.php';
 require_once 'app/models/Order.php';
+require_once 'app/models/lib.php';
 
 $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
 
@@ -16,6 +17,11 @@ if (!isset($_SESSION['customer_loggedin']) || $_SESSION['customer_loggedin'] !==
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ' . $basePath . '/checkout');
+    exit;
+}
+
+if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+    header('Location: ' . $basePath . '/checkout?message=' . urlencode('Your session expired. Please try again.'));
     exit;
 }
 

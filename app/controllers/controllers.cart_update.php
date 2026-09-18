@@ -13,6 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 require_once 'app/models/Database.php';
 require_once 'app/models/Cart.php';
+require_once 'app/models/lib.php';
+
+if (!validateCsrfToken($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Your session expired. Please refresh the page and try again.']);
+    exit;
+}
 
 $cartItemId = filter_var($_POST['cart_item_id'] ?? null, FILTER_VALIDATE_INT);
 if ($cartItemId === false || $cartItemId <= 0) {

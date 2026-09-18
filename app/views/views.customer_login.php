@@ -26,6 +26,7 @@
                     }
                 ?>
                 <form action="<?php echo htmlspecialchars($loginFormAction); ?>" method="post" class="mt-4">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" name="email" id="email" class="form-control" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">

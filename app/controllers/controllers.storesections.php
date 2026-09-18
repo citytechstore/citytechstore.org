@@ -33,12 +33,19 @@ require "app/models/StoreSections.php";
 
 // process create section form
 if (isset($_POST['addSectionForm']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireRole(['admin', 'worker']);
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: /storesection');
+        exit;
+    }
+
     // Check if all required fields are provided
     if (isset($_POST['section_name'], $_POST['section_description'], $_POST['section_short_description'], $_POST['section_tags_description']) && isset($_FILES['section_images'])) {
 
         $target_dir = "assets/img/sections/";  // Directory to store images
-        $allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'heic'];
-        $max_file_size = 1000000000;  // Max file size in bytes (1GB)
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+        $max_file_size = 5 * 1024 * 1024;  // Max file size in bytes (5MB)
         $max_images = 20;  // Maximum number of images to upload
         $uploaded_images = [];
 
@@ -50,13 +57,13 @@ if (isset($_POST['addSectionForm']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Validation for file type
             if (!in_array($imageFileType, $allowed_types)) {
-                echo "Only JPG, JPEG, PNG, HEIC & GIF files are allowed.";
+                echo "Only JPG, JPEG, PNG, & GIF files are allowed.";
                 continue;
             }
 
-            // Validation for file size (max 1GB)
+            // Validation for file size (max 5MB)
             if ($file_size > $max_file_size) {
-                echo "Sorry, your file is too large. Maximum size is 1024MB.";
+                echo "Sorry, your file is too large. Maximum size is 5MB.";
                 continue;
             }
 
@@ -122,6 +129,13 @@ if (isset($_POST['addSectionForm']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Process update section form
 if (isset($_POST['updateSectionForm']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireRole(['admin', 'worker']);
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: /storesection');
+        exit;
+    }
+
     // Check if all required fields are provided
     if (isset($_POST['section_id'], $_POST['section_name'], $_POST['section_description'], $_POST['section_short_description'], $_POST['section_tags_description'])) {
 
@@ -145,15 +159,15 @@ if (isset($_POST['updateSectionForm']) && $_SERVER['REQUEST_METHOD'] === 'POST')
             $file_size = $_FILES["section_image"]["size"];
 
             // Validation for file type
-            $allowed_types = ['jpg', 'jpeg', 'png', 'gif', 'heic'];
+            $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
             if (!in_array($imageFileType, $allowed_types)) {
-                echo "Only JPG, JPEG, PNG, HEIC & GIF files are allowed.";
+                echo "Only JPG, JPEG, PNG, & GIF files are allowed.";
                 exit;
             }
 
-            // Validation for file size (max 1GB)
-            if ($file_size > 1000000000) { // 1GB = 1024MB
-                echo "Sorry, your file is too large. Maximum size is 1024MB.";
+            // Validation for file size (max 5MB)
+            if ($file_size > 5 * 1024 * 1024) {
+                echo "Sorry, your file is too large. Maximum size is 5MB.";
                 exit;
             }
 

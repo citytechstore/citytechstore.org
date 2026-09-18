@@ -125,9 +125,14 @@
             document.getElementById('share-twitter').href = 'https://twitter.com/intent/tweet?url=' + pageUrl + '&text=' + productName;
 
             function addToCart(productId, quantity) {
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
                 return fetch('cart/add', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRF-Token': csrfToken
+                    },
                     body: 'product_id=' + encodeURIComponent(productId) + '&quantity=' + encodeURIComponent(quantity)
                 }).then(function (response) { return response.json(); });
             }

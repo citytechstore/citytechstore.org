@@ -32,6 +32,47 @@ function requireRole($allowedRoles) {
 }
 
 /**
+ * Get (or create) this session's CSRF token. Reuses the existing token
+ * for the lifetime of the session rather than regenerating on every call —
+ * a single session-scoped token lets multiple forms on the same page
+ * (e.g. the several modals on manage?type=products) all stay valid
+ * together, instead of submitting one invalidating the others.
+ *
+ * @return string The current session's CSRF token.
+ */
+function generateCsrfToken() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Validate a submitted CSRF token against the session's token, using a
+ * timing-safe comparison. Returns false (not an exception) so every call
+ * site can decide its own rejection response (redirect vs. JSON).
+ *
+ * @param string $submittedToken The token submitted with the request.
+ * @return bool True if it matches the session's token.
+ */
+function validateCsrfToken($submittedToken) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (empty($_SESSION['csrf_token']) || empty($submittedToken)) {
+        return false;
+    }
+
+    return hash_equals($_SESSION['csrf_token'], $submittedToken);
+}
+
+/**
  * Get the base URL of the site.
  *
  * @return string The base URL of the site.

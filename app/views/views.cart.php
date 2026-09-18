@@ -110,9 +110,14 @@
 
                     input.disabled = true;
 
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
                     fetch('cart/update', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRF-Token': csrfToken
+                        },
                         body: 'cart_item_id=' + encodeURIComponent(cartItemId) + '&quantity=' + encodeURIComponent(quantity)
                     })
                         .then(function (response) { return response.json(); })
@@ -142,9 +147,14 @@
 
                     button.disabled = true;
 
+                    var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
                     fetch('cart/remove', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRF-Token': csrfToken
+                        },
                         body: 'cart_item_id=' + encodeURIComponent(cartItemId)
                     })
                         .then(function (response) { return response.json(); })

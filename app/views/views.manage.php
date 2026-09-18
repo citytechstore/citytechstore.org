@@ -127,6 +127,7 @@
                   <div class="container mt-4">
                   <h1>Add Product Info</h1>
                   <form action="manage" method="POST" enctype="multipart/form-data">
+                      <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
                       <!-- Product Information -->
                       <div class="mb-3">
                           <div class="row">
@@ -240,6 +241,7 @@
                   </div>
                   <div class="modal-body">
                   <form action="manage" method="POST">
+                      <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
                       <div class="mb-3">
                           <label for="categoryName" class="form-label">Category Name</label>
                           <input type="text" class="form-control" id="categoryName" name="categoryName" placeholder="Enter category name" required>
@@ -319,6 +321,7 @@
                       </div>
                       <div class="modal-body">
                       <form action="manage" method="POST" enctype="multipart/form-data">
+                          <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
                           <input type="hidden" name="categoryId" value="' . (int) $cat['id'] . '">
                           <div class="mb-3">
                               <label class="form-label">Banner Image' . ($existingBanner ? ' (leave blank to keep the current image)' : '') . '</label>
@@ -412,6 +415,7 @@
       <div class="container">
       <h1 class="fs-4 mb-3">Record Sale</h1>
       <form method="POST" action="manage" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
           <!-- Product Information -->
           <div class="mb-3">
               <h2 class="fs-5">Product Information</h2>
@@ -525,6 +529,8 @@
                 </thead>
                 <tbody>';
 
+            $staffCsrfToken = htmlspecialchars(generateCsrfToken());
+
             foreach ($users as $user) {
                 $isSelf = (int) $user['id'] === (int) $_SESSION['user_session']['id'];
                 $isActive = (int) $user['is_active'] === 1;
@@ -533,11 +539,13 @@
                     $actionCell = '<span class="text-muted">This is you</span>';
                 } elseif ($isActive) {
                     $actionCell = '<form action="manage" method="POST" class="d-inline" onsubmit="return confirm(\'Deactivate this staff member? They will no longer be able to log in.\');">
+                        <input type="hidden" name="csrf_token" value="' . $staffCsrfToken . '">
                         <input type="hidden" name="userId" value="' . (int) $user['id'] . '">
                         <button type="submit" name="deactivateStaff" class="btn btn-sm btn-outline-danger">Deactivate</button>
                     </form>';
                 } else {
                     $actionCell = '<form action="manage" method="POST" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="' . $staffCsrfToken . '">
                         <input type="hidden" name="userId" value="' . (int) $user['id'] . '">
                         <button type="submit" name="activateStaff" class="btn btn-sm btn-outline-success">Reactivate</button>
                     </form>';
@@ -572,6 +580,7 @@
                   </div>
                   <div class="modal-body">
                   <form action="manage" method="POST">
+                      <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
                       <div class="mb-3">
                           <label for="staffUsername" class="form-label">Username</label>
                           <input type="text" class="form-control" id="staffUsername" name="username" required>
@@ -709,6 +718,7 @@
 
                 $statusControlHtml = $isAdminUser ? '
                     <form action="manage" method="POST" class="d-flex gap-2 align-items-center mt-2">
+                        <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
                         <input type="hidden" name="orderId" value="' . (int) $order['id'] . '">
                         <select class="form-select form-select-sm" name="status" style="width: auto;">' . $statusOptionsHtml . '</select>
                         <button type="submit" class="btn btn-sm btn-primary" name="updateOrderStatus">Update Status</button>
@@ -819,6 +829,7 @@
         <div class="container mt-4">
     <h1>Edit Product Info</h1>
     <form action="manage" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
         <!-- Product Information -->
         <div class="mb-3">
             <div class="row">
@@ -898,9 +909,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             button.disabled = true;
 
+            var csrfToken = document.querySelector("meta[name=csrf-token]").content;
+
             fetch("product-image/remove", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRF-Token": csrfToken
+                },
                 body: "imageId=" + encodeURIComponent(imageId) + "&productId=" + encodeURIComponent(productId)
             })
                 .then(function (response) { return response.json(); })

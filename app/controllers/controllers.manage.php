@@ -111,6 +111,11 @@ if (isset($_GET['type']) && strtolower($_GET['type']) == 'orders') {
 
 
 if (isset($_POST['addProduct']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/manage?type=products&status=failed&message=" . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     // Collect and sanitize input data
     $productName = user_input_sanitize($_POST['productName']);
     $description = user_input_sanitize($_POST['description']);
@@ -211,6 +216,11 @@ if (isset($_POST['addProduct']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 if (isset($_POST['addSales']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: ' . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . '/manage?type=sales&status=failed&message=' . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     // Gather sales data
     $productId = $_POST['product_id'];
     $quantitySold = $_POST['quantity_sold'];
@@ -304,8 +314,14 @@ if (isset($_POST['addSales']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 if (isset($_POST['addCategory']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
-    $categoryName = user_input_sanitize($_POST['categoryName']);
     $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: ' . $basePath . '/manage?type=categories&status=failed&message=' . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
+    $categoryName = user_input_sanitize($_POST['categoryName']);
 
     if ($categoryName === '') {
         header('Location: ' . $basePath . '/manage?type=categories&status=failed&message=' . urlencode('Category name cannot be empty.'));
@@ -323,6 +339,13 @@ if (isset($_POST['addCategory']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 if (isset($_POST['saveCategoryBanner']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: ' . $basePath . '/manage?type=category_banners&status=failed&message=' . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     $categoryId = filter_var($_POST['categoryId'] ?? null, FILTER_VALIDATE_INT);
     $headline = user_input_sanitize($_POST['headline'] ?? '');
     $subtext = user_input_sanitize($_POST['subtext'] ?? '');
@@ -330,7 +353,6 @@ if (isset($_POST['saveCategoryBanner']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     // "?", "=", "&") that a real URL needs. Bound as a prepared-statement
     // parameter (SQL-safe) and htmlspecialchars()'d on output (XSS-safe).
     $linkUrl = trim($_POST['linkUrl'] ?? '');
-    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
 
     $uploadedBannerImages = uploadProductImages('bannerImages', 'assets/img/category_banners/');
     if (!empty($uploadedBannerImages)) {
@@ -363,6 +385,11 @@ if (isset($_POST['saveCategoryBanner']) && $_SERVER['REQUEST_METHOD'] == 'POST')
 }
 
 if (isset($_POST['editProductInfo']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/manage?type=products&status=failed&message=" . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     // Collect and sanitize input data
     $productName = user_input_sanitize($_POST['productName']);
     $description = user_input_sanitize($_POST['description']);
@@ -428,6 +455,11 @@ if (isset($_POST['addStaff']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
 
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     $rawFields = [
         'username' => $_POST['username'] ?? '',
         'password' => $_POST['password'] ?? '',
@@ -474,6 +506,12 @@ if (isset($_POST['deactivateStaff']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     requireRole(['admin']);
 
     $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     $staffId = filter_var($_POST['userId'] ?? null, FILTER_VALIDATE_INT);
 
     if (!$staffId) {
@@ -495,6 +533,12 @@ if (isset($_POST['activateStaff']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     requireRole(['admin']);
 
     $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: ' . $basePath . '/manage?type=users&status=failed&message=' . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     $staffId = filter_var($_POST['userId'] ?? null, FILTER_VALIDATE_INT);
 
     if (!$staffId) {
@@ -511,6 +555,12 @@ if (isset($_POST['updateOrderStatus']) && $_SERVER['REQUEST_METHOD'] == 'POST') 
     requireRole(['admin']);
 
     $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        header('Location: ' . $basePath . '/manage?type=orders&status=failed&message=' . urlencode('Your session expired. Please try again.'));
+        exit();
+    }
+
     $orderId = filter_var($_POST['orderId'] ?? null, FILTER_VALIDATE_INT);
     $newStatus = $_POST['status'] ?? '';
 

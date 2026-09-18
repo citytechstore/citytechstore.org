@@ -6,9 +6,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             button.disabled = true;
 
+            var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
             fetch('cart/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': csrfToken
+                },
                 body: 'product_id=' + encodeURIComponent(productId) + '&quantity=1'
             })
                 .then(function (response) { return response.json(); })

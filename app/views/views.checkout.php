@@ -23,6 +23,7 @@
                     <div class="alert alert-danger"><?php echo htmlspecialchars($_GET['message']); ?></div>
                 <?php endif; ?>
                 <form id="checkout-form" action="checkout/process" method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
                     <div class="form-group mb-3">
                         <label for="full_address">Full Address</label>
                         <textarea name="full_address" id="full_address" class="form-control" rows="3" required></textarea>

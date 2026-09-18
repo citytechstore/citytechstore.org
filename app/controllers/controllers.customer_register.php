@@ -6,6 +6,13 @@ if (session_status() === PHP_SESSION_NONE) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'app/models/Database.php';
     require_once 'app/models/Customer.php';
+    require_once 'app/models/lib.php';
+
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = "Your session expired. Please try again.";
+        require "app/views/views.customer_register.php";
+        exit;
+    }
 
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name = trim($_POST['last_name'] ?? '');

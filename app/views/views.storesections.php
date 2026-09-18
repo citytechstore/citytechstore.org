@@ -40,6 +40,7 @@
         <div class="container mt-5">
             <h2>Create a New Section</h2>
             <form id="create-section-form" enctype="multipart/form-data" action="storesection" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
                 <div class="mb-3">
                     <label for="section_name" class="form-label">Section Name</label>
                     <input type="text" class="form-control" id="section_name" name="section_name" required>
@@ -71,6 +72,7 @@
             <div class="container mt-5">
                 <h2>Edit Section</h2>
                 <form id="edit-section-form" enctype="multipart/form-data" method="POST" action="storesection">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
                     <input type="hidden" id="section_id" name="section_id" value="<?php echo $section['id']; ?>" />
                     <div class="mb-3">
                         <label for="section_name" class="form-label">Section Name</label>

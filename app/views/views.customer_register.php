@@ -16,6 +16,7 @@
                     <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
                 <form action="register" method="post" class="mt-4">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
                     <div class="form-group">
                         <label for="first_name">First Name</label>
                         <input type="text" name="first_name" id="first_name" class="form-control" required value="<?php echo htmlspecialchars($_POST['first_name'] ?? ''); ?>">
