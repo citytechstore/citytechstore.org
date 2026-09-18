@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     firstname VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL,
     phone_number VARCHAR(20),
-    role ENUM('admin', 'worker', 'developer') NOT NULL,
+    role ENUM('admin', 'worker') NOT NULL,
         profile_picture VARCHAR(255) DEFAULT 'assets/img/defaults/user.jpg',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

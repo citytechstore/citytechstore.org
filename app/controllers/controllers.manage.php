@@ -26,6 +26,7 @@ require_once('app/models/Users.php'); // Users Model
 require_once('app/models/ProductCategory.php'); // Product Category DB Model (unrelated chart-cache table, see FIXME below)
 require_once('app/models/Category.php'); // Category Model (controlled category master data)
 require_once('app/models/ProductImage.php'); // Product gallery images Model
+require_once('app/models/CategoryBanner.php'); // Category banner Model
 require_once('app/models/lib.php'); // function lib
 require_once('app/models/Stock.php'); // Stock Model
 
@@ -33,14 +34,16 @@ require_once('app/models/Stock.php'); // Stock Model
 // $_FILES['productImages']), returning the list of saved public paths.
 // Dies with the same messages as the pre-existing single-file upload
 // code on invalid input, so behavior stays consistent across both.
-function uploadProductImages($filesField) {
+// $targetDir defaults to the original product-image destination so
+// existing callers are unaffected; other callers (e.g. category
+// banners) pass their own directory to reuse the same validation.
+function uploadProductImages($filesField, $targetDir = "assets/img/products/") {
     $savedPaths = [];
 
     if (!isset($_FILES[$filesField]) || empty($_FILES[$filesField]['name'][0])) {
         return $savedPaths;
     }
 
-    $targetDir = "assets/img/products/";
     $allowTypes = array('jpg', 'png', 'jpeg', 'gif');
     $fileCount = count($_FILES[$filesField]['name']);
 
@@ -61,7 +64,7 @@ function uploadProductImages($filesField) {
         $targetFilePath = $targetDir . $newFileName;
 
         if (move_uploaded_file($_FILES[$filesField]['tmp_name'][$i], $targetFilePath)) {
-            $savedPaths[] = 'assets/img/products/' . $newFileName;
+            $savedPaths[] = $targetDir . $newFileName;
         } else {
             die("Sorry, there was an error uploading your file.");
         }
@@ -96,8 +99,8 @@ $total_products_count = count($products);
 $total_sales_count = count($sales);
 $total_users = count($users);
 
-if (isset($_GET['type']) && (strtolower($_GET['type']) == 'users' || strtolower($_GET['type']) == 'user') && !($_SESSION['user_session']['role'] == 'admin')) {
-    header("Location: " . rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/') . "/dashboard");
+if (isset($_GET['type']) && (strtolower($_GET['type']) == 'users' || strtolower($_GET['type']) == 'user')) {
+    requireRole(['admin']);
 }
 
 
@@ -311,6 +314,46 @@ if (isset($_POST['addCategory']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
         header('Location: ' . $basePath . '/manage?type=categories&status=failed&message=' . urlencode($e->getMessage()));
         exit();
     }
+}
+
+if (isset($_POST['saveCategoryBanner']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    $categoryId = filter_var($_POST['categoryId'] ?? null, FILTER_VALIDATE_INT);
+    $headline = user_input_sanitize($_POST['headline'] ?? '');
+    $subtext = user_input_sanitize($_POST['subtext'] ?? '');
+    // Not run through user_input_sanitize: that strips characters ("/", ":",
+    // "?", "=", "&") that a real URL needs. Bound as a prepared-statement
+    // parameter (SQL-safe) and htmlspecialchars()'d on output (XSS-safe).
+    $linkUrl = trim($_POST['linkUrl'] ?? '');
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    $uploadedBannerImages = uploadProductImages('bannerImages', 'assets/img/category_banners/');
+    if (!empty($uploadedBannerImages)) {
+        $imagePath = $uploadedBannerImages[0];
+    } else {
+        $existingBanner = $categoryId ? $CategoryBannerModel->getBannerByCategoryId($categoryId) : null;
+        $imagePath = $existingBanner['image_path'] ?? null;
+    }
+
+    if (!$categoryId || $headline === '' || $imagePath === null) {
+        header('Location: ' . $basePath . '/manage?type=category_banners&status=failed&message=' . urlencode('A category, headline, and image are all required.'));
+        exit();
+    }
+
+    if ($linkUrl === '') {
+        $categoryName = null;
+        foreach ($categories as $cat) {
+            if ((int) $cat['id'] === $categoryId) {
+                $categoryName = $cat['name'];
+                break;
+            }
+        }
+        $linkUrl = $categoryName !== null ? ('shop?c=category&p=' . urlencode($categoryName)) : '';
+    }
+
+    $CategoryBannerModel->saveBanner($categoryId, $imagePath, $headline, $subtext, $linkUrl);
+
+    header('Location: ' . $basePath . '/manage?type=category_banners&status=success');
+    exit();
 }
 
 if (isset($_POST['editProductInfo']) && $_SERVER['REQUEST_METHOD'] == 'POST') {

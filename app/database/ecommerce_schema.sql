@@ -13,7 +13,7 @@ USE citybxta_citytechstore;
 -- customers
 -- Customer-facing accounts (registration/login on the storefront).
 -- Deliberately separate from `users`, which is staff-only
--- (admin/worker/developer) and has no concept of a storefront login.
+-- (admin/worker) and has no concept of a storefront login.
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS customers (
     `id` INT AUTO_INCREMENT PRIMARY KEY,

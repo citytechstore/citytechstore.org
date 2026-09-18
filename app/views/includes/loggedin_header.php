@@ -48,6 +48,9 @@
                         <li> <a class="dropdown-item" href="manage?type=categories">
                                 <i class="fas fa-tags"></i>
                                 Manage Categories</a></li>
+                        <li> <a class="dropdown-item" href="manage?type=category_banners">
+                                <i class="fas fa-image"></i>
+                                Manage Category Banners</a></li>
                         <li>
                         <li> <a class="dropdown-item" href="storesection">
                                 <i class="fa fa-columns"></i>
@@ -58,15 +61,15 @@
                         <li> <a class="dropdown-item" href="stocks">
                                 <i class="fas fa-clipboard-list"></i>
                                 View Stock Activity</a></li>
-                        <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) : ?>
+                        <?php if (($_SESSION['user_session']['role'] ?? null) === 'admin') : ?>
                             <li>
                                 <hr href="" class="dropdown-divider" />
                             </li>
                             <li> <a class="dropdown-item" href="manage?type=users">
                                     <i class="fas fa-users-cog"></i>
                                     Manage Users</a></li>
+                        <?php endif; ?>
                     </ul>
-                <?php endif; ?>
                 </li>
                 <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) : ?>
                     <li class="nav-item">

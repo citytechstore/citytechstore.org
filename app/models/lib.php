@@ -7,6 +7,31 @@ function user_input_sanitize($user_input): string {
 
 
 /**
+ * Require the logged-in staff user to have one of the given roles,
+ * redirecting (with exit) otherwise. Usable as a one-line guard at the
+ * top of any admin-only controller, or mid-file for a single branch.
+ *
+ * @param string|array $allowedRoles One role, or a list of allowed roles.
+ */
+function requireRole($allowedRoles) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+
+    if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || !isset($_SESSION['user_session']['role'])) {
+        header('Location: ' . $basePath . '/login');
+        exit();
+    }
+
+    if (!in_array($_SESSION['user_session']['role'], (array) $allowedRoles, true)) {
+        header('Location: ' . $basePath . '/dashboard');
+        exit();
+    }
+}
+
+/**
  * Get the base URL of the site.
  *
  * @return string The base URL of the site.

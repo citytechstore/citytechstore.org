@@ -15,6 +15,8 @@
         $page_title = 'CTS - Users management';
     } else if (isset($_GET['type']) && strtolower($_GET['type']) == 'categories') {
         $page_title = 'CTS - Categories management';
+    } else if (isset($_GET['type']) && strtolower($_GET['type']) == 'category_banners') {
+        $page_title = 'CTS - Category Banners management';
     }
     ?>
     <title><?php echo $page_title; ?></title>
@@ -250,6 +252,100 @@
               </div>
             </div>
             ';
+        } elseif (isset($_GET['type']) && strtolower($_GET['type']) == 'category_banners' && !isset($_GET['action'])) {
+
+            echo '
+            <div class="container-fluid">
+            <div class="row border-bottom pb-1">
+            <div class="col-12"><h2 class="mb-4">Category Banners Management</h2></div>
+            </div>
+            </div>
+            ';
+
+            if (isset($_GET['status'])) {
+                if ($_GET['status'] === 'success') {
+                    echo '<div class="alert alert-success">Banner saved successfully.</div>';
+                } elseif ($_GET['status'] === 'failed') {
+                    $bannerErrorMessage = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : 'Something went wrong.';
+                    echo '<div class="alert alert-danger">' . $bannerErrorMessage . '</div>';
+                }
+            }
+
+            $bannersByCategoryId = array_column($CategoryBannerModel->getAllBanners(), null, 'category_id');
+
+            echo '
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Preview</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>';
+            foreach ($categories as $cat) {
+                $existingBanner = $bannersByCategoryId[$cat['id']] ?? null;
+                echo '<tr>
+                    <td>' . $cat['id'] . '</td>
+                    <td>' . htmlspecialchars($cat['name']) . '</td>
+                    <td>' . ($existingBanner ? '<span class="badge bg-success">Has Banner</span>' : '<span class="badge bg-secondary">No Banner</span>') . '</td>
+                    <td>' . ($existingBanner ? '<img src="' . htmlspecialchars($existingBanner['image_path']) . '" alt="Banner preview" width="80">' : '&mdash;') . '</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#bannerModal' . $cat['id'] . '">
+                            ' . ($existingBanner ? 'Edit Banner' : 'Add Banner') . '
+                        </button>
+                    </td>
+                </tr>';
+            }
+            echo '</tbody></table>';
+            if (count($categories) == 0) {
+                echo '<h4 class="text-muted text-center mt-5 mb-5">No categories yet — add a category first.</h4>';
+            }
+
+            foreach ($categories as $cat) {
+                $existingBanner = $bannersByCategoryId[$cat['id']] ?? null;
+
+                echo '
+                <div class="modal fade" id="bannerModal' . $cat['id'] . '" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="bannerModalLabel' . $cat['id'] . '" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="bannerModalLabel' . $cat['id'] . '">' . ($existingBanner ? 'Edit' : 'Add') . ' Banner &mdash; ' . htmlspecialchars($cat['name']) . '</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                      <form action="manage" method="POST" enctype="multipart/form-data">
+                          <input type="hidden" name="categoryId" value="' . (int) $cat['id'] . '">
+                          <div class="mb-3">
+                              <label class="form-label">Banner Image' . ($existingBanner ? ' (leave blank to keep the current image)' : '') . '</label>
+                              ' . ($existingBanner ? '<div class="mb-2"><img src="' . htmlspecialchars($existingBanner['image_path']) . '" alt="Current banner" width="220"></div>' : '') . '
+                              <input type="file" class="form-control" name="bannerImages[]" accept="image/*"' . ($existingBanner ? '' : ' required') . '>
+                          </div>
+                          <div class="mb-3">
+                              <label class="form-label">Headline</label>
+                              <input type="text" class="form-control" name="headline" placeholder="Enter banner headline" value="' . ($existingBanner ? htmlspecialchars($existingBanner['headline']) : '') . '" required>
+                          </div>
+                          <div class="mb-3">
+                              <label class="form-label">Subtext (optional)</label>
+                              <input type="text" class="form-control" name="subtext" placeholder="Enter optional subtext" value="' . ($existingBanner ? htmlspecialchars($existingBanner['subtext']) : '') . '">
+                          </div>
+                          <div class="mb-3">
+                              <label class="form-label">Link URL (optional, defaults to the category shop page)</label>
+                              <input type="text" class="form-control" name="linkUrl" placeholder="e.g. shop?c=category&amp;p=' . htmlspecialchars($cat['name']) . '" value="' . ($existingBanner ? htmlspecialchars($existingBanner['link_url']) : '') . '">
+                          </div>
+                          <button type="submit" class="btn btn-primary" name="saveCategoryBanner">Save Banner</button>
+                      </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                  </div>
+                  </div>
+                </div>
+                ';
+            }
         } elseif (isset($_GET['type']) && (strtolower($_GET['type']) == 'sale' || strtolower($_GET['type']) == 'sales') && !isset($_GET['action'])) {
             echo ' <div class="container-fluid">
             <div class="row border-bottom pb-1">
@@ -457,6 +553,7 @@
             <a href="manage?type=products" class="btn btn-success">Products</a>
             <a href="manage?type=sales" class="btn btn-info">Sales</a>
             <a href="manage?type=categories" class="btn btn-secondary">Categories</a>
+            <a href="manage?type=category_banners" class="btn btn-dark">Category Banners</a>
             <a href="manage?type=users" class="btn btn-warning">Users</a>
             </div>';
                 } else {
@@ -466,6 +563,7 @@
         <a href="manage?type=products" class="btn btn-success">Products</a>
         <a href="manage?type=sales" class="btn btn-info">Sales</a>
         <a href="manage?type=categories" class="btn btn-secondary">Categories</a>
+        <a href="manage?type=category_banners" class="btn btn-dark">Category Banners</a>
         </div>';
                 }
             }

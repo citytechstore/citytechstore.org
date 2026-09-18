@@ -62,7 +62,6 @@
                                     <select class="form-select" id="role" name="role" required>
                                         <option value="admin">Admin</option>
                                         <option value="worker">Worker</option>
-                                        <option value="developer">Developer</option>
                                     </select>
                                 </div>
                                 <div class="d-grid">

@@ -6,26 +6,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'app/models/Users.php';
 
     $username = $_POST['username'];
-    $role = $_POST['role'];
     $password = $_POST['password'];
-
-    // Instantiate database and user model
-    // $db = new Database($database_connection); // Replace $database_connection with your actual connection
-    // $users = new Users($db);
 
     try {
         $user = $UsersModel->loginUser($username, $password);
 
-        // Check if the role matches
-        if ($user['role'] === $role) {
-            $_SESSION['user_session'] = $user;
-            $_SESSION['loggedin'] = true;
-            $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
-            header('Location: ' . $basePath . '/dashboard?role='.$user['role'].'&id='.$user['id']);
-            exit;
-        } else {
-            $error = "Invalid role selected.";
-        }
+        $_SESSION['user_session'] = $user;
+        $_SESSION['loggedin'] = true;
+        $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        header('Location: ' . $basePath . '/dashboard?role='.$user['role'].'&id='.$user['id']);
+        exit;
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
