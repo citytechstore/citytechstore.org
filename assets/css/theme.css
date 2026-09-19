@@ -771,3 +771,64 @@ h4.fs-4 {
     font-size: 0.8rem;
     color: var(--color-text-muted);
 }
+
+/* ---------- Staff dashboard ---------- */
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.stat-card-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--color-white);
+    background-color: var(--color-primary);
+}
+
+.stat-card-icon.stat-card-icon-navy {
+    background-color: var(--color-navy);
+}
+
+.stat-card-value {
+    font-family: var(--font-family-heading);
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--color-dark);
+    line-height: 1.2;
+}
+
+.stat-card-label {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.dashboard-panel {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.dashboard-panel-title {
+    font-family: var(--font-family-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-dark);
+    margin-bottom: 1.25rem;
+}

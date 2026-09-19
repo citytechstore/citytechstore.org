@@ -202,6 +202,62 @@ class Order
         $stmt->bind_param("si", $paymentReference, $orderId);
         return $stmt->execute();
     }
+
+    // Dashboard stat card: real money actually collected, not the face
+    // value of unpaid/abandoned orders.
+    public function getTotalRevenue()
+    {
+        $sql = "SELECT SUM(total) AS revenue FROM orders WHERE payment_status = 'paid'";
+        $result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+        return (float) ($row['revenue'] ?? 0);
+    }
+
+    public function getTotalOrdersCount()
+    {
+        $sql = "SELECT COUNT(*) AS total FROM orders";
+        $result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
+
+    // Paid revenue grouped by calendar day for the dashboard chart. Only
+    // returns rows for days that actually had a paid order — the caller
+    // fills in the missing days as zero so the chart shows real gaps
+    // instead of silently omitting slow days.
+    public function getDailyRevenueForLastNDays($days = 30)
+    {
+        $sql = "SELECT DATE(created_at) AS day, SUM(total) AS revenue
+                FROM orders
+                WHERE payment_status = 'paid' AND created_at >= (CURDATE() - INTERVAL ? DAY)
+                GROUP BY DATE(created_at)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $days);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Top products by units sold, counting only paid orders — the same
+    // "real completed sale" definition used for getTotalRevenue().
+    public function getBestsellers($limit = 10)
+    {
+        $sql = "SELECT products.id, products.name,
+                       SUM(order_items.quantity) AS units_sold,
+                       SUM(order_items.quantity * order_items.price_at_purchase) AS revenue
+                FROM order_items
+                JOIN orders ON orders.id = order_items.order_id
+                JOIN products ON products.id = order_items.product_id
+                WHERE orders.payment_status = 'paid'
+                GROUP BY products.id, products.name
+                ORDER BY units_sold DESC
+                LIMIT ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $limit);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
 }
 
 $OrderModel = new Order($DatabaseModel);

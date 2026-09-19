@@ -42,6 +42,13 @@ class Products {
         $result = $this->db->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function getProductCount() {
+        $sql = "SELECT COUNT(*) AS total FROM products";
+        $result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
     public function getDistinctCategories() {
         $sql = "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category <> '' ORDER BY category ASC";
         $result = $this->db->query($sql);

@@ -10,266 +10,186 @@
 
 <body>
     <?php require_once ('includes/loggedin_header.php'); ?>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                <div class="position-sticky">
-                    <ul class="nav flex-column">
-                        <li class="nav-item pb-3 pt-3">
-                            <a class="nav-link active" aria-current="page" href="dashboard">
-                                <i class="fas fa-tachometer-alt fs-5"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item pb-3">
-                            <a class="nav-link" href="manage?type=products">
-                                <i class="fa fa-box-open fs-5"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item pb-3">
-                            <a class="nav-link" href="manage?type=sales">
-                                <i class="fa fa-dollar-sign fs-5"></i> Sales
-                            </a>
-                        </li>
-                        <?php if($_SESSION['user_session']['role'] == 'admin'): ?>
-                        <li class="nav-item pb-3">
-                            <a class="nav-link" href="manage?type=users">
-                                <i class="fa fa-users fs-5"></i> Users
-                            </a>
-                        </li>
-                        <?php endif; ?>
 
-                        <li class="nav-item pb-3">
-                            <a class="nav-link" href="dashboard.php?logout=true">
-                                <i class="fa fa-sign-out-alt fs-5"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="position-bottom">
-                        <div class="profile">
-                            <span class="fw-bold">
-                                <img src="<?php echo $_SESSION['user_session']['profile_picture'] ?>"
-                                    alt="<?php echo ucfirst($_SESSION['user_session']['role']); ?>'s Profile Picture"
-                                    class="img rounded-pill" width="45px" height="45px" />
-                                <?php echo $_SESSION['user_session']['firstname'] ?></span>
-                        </div>
+    <?php
+        $statusBadgeClass = [
+            'pending' => 'bg-secondary',
+            'confirmed' => 'bg-info text-dark',
+            'shipped' => 'bg-primary',
+            'delivered' => 'bg-success',
+            'cancelled' => 'bg-danger',
+        ];
+    ?>
+
+    <div class="container-fluid py-4 px-4">
+        <h1 class="h3 mb-4"><?php echo ucfirst($_SESSION['user_session']['role']); ?> Dashboard</h1>
+
+        <!-- Stat cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-naira-sign"></i>
+                    </div>
+                    <div>
+                        <div class="stat-card-value">&#8358;<?php echo number_format($totalRevenue, 2); ?></div>
+                        <div class="stat-card-label">Total Revenue</div>
                     </div>
                 </div>
-            </nav>
-
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div
-                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2"><?php echo ucfirst($_SESSION['user_session']['role']); ?> Dashboard</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group me-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-                        </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-card-icon-navy">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-card-value"><?php echo number_format($totalOrders); ?></div>
+                        <div class="stat-card-label">Total Orders</div>
                     </div>
                 </div>
-
-                <!-- Overview Section -->
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card text-white bg-primary mb-3">
-                            <div class="card-header"><?php echo APP_NAME; ?> Total Sales</div>
-                            <div class="card-body">
-                                <h5 class="card-title">₦<?php echo number_format($total_sales_price, 2); ?></h5>
-                                <p class="card-text">Product sold this month</p>
-                                <p class="card-text">Total sales made: <?php echo $total_sales_count; ?></p>
-                            </div>
-                        </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-box-open"></i>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card text-white bg-success mb-3">
-                            <div class="card-header"><?php echo APP_NAME; ?> Total Products</div>
-                            <div class="card-body">
-                                <h5 class="card-title">₦<?php echo number_format($total_products_price, 2); ?></h5>
-                                <p class="card-text">Products available in the store now.</p>
-                                <p class="card-text">Total available products: <?php echo $total_products_count; ?>.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <?php if($_SESSION['user_session']['role'] == 'admin'): ?>
-                    <div class="col-md-4">
-                        <div class="card text-white bg-info mb-3">
-                            <div class="card-header"><?php echo APP_NAME; ?> Total Users</div>
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo $total_users; ?></h5>
-                                <p class="card-text">Registered users in the system.</p>
-                                <p class="card-text">To add new user, <a href="manage?type=users"
-                                        class="link text-decoration-none">click here</a></p>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                </div>
-
-                <!-- Graphs/Charts Section -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <canvas id="salesChart"></canvas>
-
-
-                        <div class="row mt-5 mb-5">
-                            <div class="col-sm-12 text-center">
-                                <h4>Manage Products & Sales</h4>
-                                <div class="btn-group">
-                                    <a href="manage?type=products" class="btn btn-success">Go to Products</a>
-                                    <a href="manage?type=sales" class="btn btn-primary">Go to Sales</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <canvas id="productsChart"></canvas>
+                    <div>
+                        <div class="stat-card-value"><?php echo number_format($totalProducts); ?></div>
+                        <div class="stat-card-label">Total Products</div>
                     </div>
                 </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-card-icon stat-card-icon-navy">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="stat-card-value"><?php echo number_format($totalCustomers); ?></div>
+                        <div class="stat-card-label">Total Customers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <!-- users section -->
-                <?php if($_SESSION['user_session']['role'] == 'admin'): ?>
-                <div class="row mb-5">
-                    <div class="col-md-12">
-                        <h4 class="mb-3">Users</h4>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">User ID</th>
-                                    <th scope="col">Firstname</th>
-                                    <th scope="col">Lastname</th>
-                                    <th scope="col">Username</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Phone</th>
-                                    <th scope="col">Role</th>
-                                    <th scope="col">Date Created</th>
-                                    <th scope="col">Picture</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- <ul class="list-group"> -->
-                                <?php foreach ($users as $user): ?>
+        <!-- Revenue over time -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="dashboard-panel">
+                    <div class="dashboard-panel-title">Revenue — Last <?php echo (int) $revenueDays; ?> Days</div>
+                    <canvas id="revenueChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <!-- Bestsellers -->
+            <div class="col-lg-6">
+                <div class="dashboard-panel">
+                    <div class="dashboard-panel-title">Bestsellers</div>
+                    <?php if (empty($bestsellers)): ?>
+                        <p class="text-muted mb-0">No paid orders yet.</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
                                     <tr>
-                                        <td><?php echo $user['id']; ?></td>
-                                        <td><?php echo $user['firstname']; ?></td>
-                                        <td><?php echo $user['lastname']; ?></td>
-                                        <td><?php echo $user['username']; ?></td>
-                                        <td><?php echo $user['email']; ?></td>
-                                        <td><?php echo $user['phone_number']; ?></td>
-                                        <td><?php echo $user['role']; ?></td>
-                                        <td><?php echo $user['created_at']; ?></td>
-                                        <td>
-                                            <img src="<?php echo $user['profile_picture']; ?>"
-                                                alt="<?php echo $user['firstname']; ?> not found" width="45px"
-                                                hehight="45px" class="rounded-pill">
-                                        </td>
+                                        <th scope="col">Product</th>
+                                        <th scope="col">Units Sold</th>
+                                        <th scope="col">Revenue</th>
                                     </tr>
-                                <?php endforeach; ?>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($bestsellers as $product): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                            <td><?php echo (int) $product['units_sold']; ?></td>
+                                            <td>&#8358;<?php echo number_format($product['revenue'], 2); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
-                                <!-- </ul> -->
-                        </table>
-                        <a href="manage?type=users" class="btn btn-warning">Manage Users</a>
-                    </div>
+                            </table>
+                        </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
+            </div>
 
-
-                <!-- Latest Activity Section -->
-                <!-- <div class="row mb-5">
-                    <div class="col-md-12">
-                        <h4 class="mb-3">Latest Activities</h4>
-                        <ul class="list-group">
-                            <?php // foreach ($sales as $sale): ?>
-                                <li class="list-group-item">
-                                    Sale of <?php //  echo $sale['quantity']; ?> item(s) for
-                                    ₦<?php // echo number_format($sale['total_price'], 2); ?>
-                                </li>
-                            <?php // endforeach; ?>
-                        </ul>
+            <!-- Recent orders -->
+            <div class="col-lg-6">
+                <div class="dashboard-panel">
+                    <div class="d-flex justify-content-between align-items-center dashboard-panel-title mb-3">
+                        <span>Recent Orders</span>
+                        <a href="manage?type=orders" class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
-                </div> -->
-
-                <!-- Management Sections -->
-
-            </main>
+                    <?php if (empty($recentOrders)): ?>
+                        <p class="text-muted mb-0">No orders yet.</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Order #</th>
+                                        <th scope="col">Customer</th>
+                                        <th scope="col">Total</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($recentOrders as $recentOrder): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($recentOrder['order_number']); ?></td>
+                                            <td><?php echo htmlspecialchars($recentOrder['customer_first_name'] . ' ' . $recentOrder['customer_last_name']); ?></td>
+                                            <td>&#8358;<?php echo number_format($recentOrder['total'], 2); ?></td>
+                                            <td>
+                                                <span class="badge <?php echo $statusBadgeClass[$recentOrder['status']] ?? 'bg-secondary'; ?>">
+                                                    <?php echo htmlspecialchars(ucfirst($recentOrder['status'])); ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
+
     <?php require_once ('includes/footer.php'); ?>
     <?php require_once ('includes/cdn_footer.php'); ?>
 
-    <!-- Scripts for charts (if using Chart.js) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        var ctx = document.getElementById('salesChart').getContext('2d');
-        var salesChart = new Chart(ctx, {
-            type: 'bar',
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
             data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                labels: <?php echo json_encode($chartLabels); ?>,
                 datasets: [{
-                    label: 'Montly Sales',
-                    data: <?php echo $sales_data; ?>,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        var ctx = document.getElementById('productsChart').getContext('2d');
-        var productsChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: <?php echo $jsLabel; ?>,
-                datasets: [{
-                    label: 'Total Counts',
-                    data: <?php echo $jsLabelCount; ?>,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                    ],
-                    borderWidth: 1
+                    label: 'Revenue (₦)',
+                    data: <?php echo json_encode($chartData); ?>,
+                    borderColor: '#E31E24',
+                    backgroundColor: 'rgba(227, 30, 36, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    tension: 0.25,
+                    fill: true,
                 }]
             },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'City Tech Store Product Categories'
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '₦' + value.toLocaleString();
+                            }
+                        }
                     }
                 }
             }

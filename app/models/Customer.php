@@ -30,6 +30,14 @@ class Customer
         return $result->fetch_assoc();
     }
 
+    public function getCustomerCount()
+    {
+        $sql = "SELECT COUNT(*) AS total FROM customers";
+        $result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
+
     public function register($data)
     {
         if ($this->findByEmail($data['email'])) {
