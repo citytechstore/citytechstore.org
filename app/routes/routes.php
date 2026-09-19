@@ -36,6 +36,7 @@ return [
     
     '/admin' => 'app/controllers/controllers.admin.php',
     '/dashboard' => 'app/controllers/controllers.dashboard.php',
+    '/dashboard/revenue-chart' => 'app/controllers/controllers.dashboard_revenue_chart.php',
     '/stocks' => 'app/controllers/controllers.stocks.php',
     '/howto' => 'app/controllers/controllers.howto.php',
     '/tutorials' => 'app/controllers/controllers.tutorials.php',

@@ -832,3 +832,325 @@ h4.fs-4 {
     color: var(--color-dark);
     margin-bottom: 1.25rem;
 }
+
+/* ---------- Admin shell (opt-in per page; dashboard only for now) ---------- */
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+}
+
+.admin-sidebar {
+    width: 96px;
+    flex-shrink: 0;
+    background-color: var(--color-navy);
+    align-items: center;
+    padding: 1.25rem 0.5rem;
+    gap: 0.5rem;
+    /* Pinned to the viewport height independently, rather than stretched
+       to match .admin-shell's auto-computed height — avoids a nested-flex
+       circular-auto-height bug where a tall .admin-content (flex:1 inside
+       a flex-column inside a stretched flex-row) resolves a too-short
+       height for its own overflowing children on long pages. */
+    align-self: flex-start;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.admin-sidebar-brand {
+    color: var(--color-white);
+    font-family: var(--font-family-heading);
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-decoration: none;
+    text-align: center;
+    margin-bottom: 0.75rem;
+}
+
+.admin-sidebar-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    width: 100%;
+    padding: 0.6rem 0.25rem;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.admin-sidebar-link i {
+    font-size: 1.15rem;
+}
+
+.admin-sidebar-link:hover {
+    background-color: var(--color-navy-light);
+    color: var(--color-white);
+}
+
+.admin-sidebar-link-active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.admin-sidebar-label {
+    line-height: 1.1;
+}
+
+.admin-sidebar-offcanvas {
+    background-color: var(--color-navy);
+    color: var(--color-white);
+    width: 240px;
+}
+
+.admin-sidebar-offcanvas .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.admin-sidebar-offcanvas-brand {
+    font-family: var(--font-family-heading);
+    font-weight: 800;
+    color: var(--color-white);
+}
+
+.admin-sidebar-offcanvas-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-navy-light);
+}
+
+.admin-sidebar-offcanvas-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.admin-sidebar-offcanvas-link:hover,
+.admin-sidebar-offcanvas-link-active {
+    background-color: var(--color-navy-light);
+    color: var(--color-white);
+}
+
+.admin-main {
+    flex: 1;
+    min-width: 0;
+    /* Deliberately NOT display:flex/flex-direction:column — see
+       .admin-sidebar's comment. Topbar/content/footer just stack in
+       normal block flow, so .admin-content always sizes to its real
+       content height, however tall. */
+}
+
+.admin-topbar {
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.85rem 1.25rem;
+    z-index: 5;
+}
+
+.admin-topbar-toggle {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--color-navy);
+    padding: 0.25rem 0.5rem;
+}
+
+.admin-topbar-title {
+    font-family: var(--font-family-heading);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--color-dark);
+}
+
+.admin-topbar-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.admin-topbar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.admin-content {
+    padding: 1.5rem;
+}
+
+.admin-footer {
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-white);
+}
+
+.admin-trend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.admin-trend-badge-up {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: #16A34A;
+}
+
+.admin-trend-badge-down {
+    background-color: var(--color-accent-soft-bg);
+    color: var(--color-primary);
+}
+
+.admin-trend-badge-flat {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+}
+
+.admin-trend-badge-new {
+    background-color: rgba(15, 23, 42, 0.08);
+    color: var(--color-navy);
+}
+
+.admin-attention-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 100%;
+}
+
+.admin-attention-card:hover {
+    border-color: var(--color-primary);
+}
+
+.admin-attention-value {
+    font-family: var(--font-family-heading);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--color-dark);
+    line-height: 1.2;
+}
+
+.admin-attention-sub {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+.admin-chart-toggle .btn {
+    border-color: var(--color-border);
+    color: var(--color-text-muted);
+}
+
+.admin-chart-toggle .btn.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.admin-chart-wrap {
+    position: relative;
+    height: 260px;
+}
+
+.admin-chart-status {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.85);
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.admin-chart-status-error {
+    color: var(--color-primary);
+}
+
+.admin-product-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+    background-color: var(--color-bg);
+}
+
+@media (max-width: 991.98px) {
+    .admin-content {
+        padding: 1rem;
+    }
+}
+
+/* ---------- Admin data tables (Orders, and later Products/Categories/etc.) ---------- */
+.admin-order-thumb-stack {
+    display: flex;
+    align-items: center;
+}
+
+.admin-order-thumb {
+    width: 34px;
+    height: 34px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--color-white);
+    background-color: var(--color-bg);
+    margin-left: -10px;
+}
+
+.admin-order-thumb:first-child {
+    margin-left: 0;
+}
+
+.admin-order-thumb-more {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 2px solid var(--color-white);
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: -10px;
+}
+
+/* Overrides the page-wide .table td/th ellipsis rule (views.manage.php's
+   own inline <style>) for this table only — additive, higher-specificity
+   selector, the shared rule itself is untouched. */
+.admin-orders-table td,
+.admin-orders-table th {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    max-width: none;
+    vertical-align: middle;
+}
+
+.admin-orders-table .text-muted {
+    font-size: 0.8rem;
+}

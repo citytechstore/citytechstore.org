@@ -49,6 +49,38 @@ class Products {
         $row = $result->fetch_assoc();
         return (int) $row['total'];
     }
+
+    // Dashboard "needs attention" card. $threshold is a plain int the
+    // caller controls (no user input reaches this), so a simple bound
+    // parameter is enough — no allowlist needed.
+    public function getLowStockCount($threshold) {
+        $sql = "SELECT COUNT(*) AS total FROM products WHERE quantity <= ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $threshold);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
+
+    public function getOutOfStockCount() {
+        $sql = "SELECT COUNT(*) AS total FROM products WHERE quantity = 0";
+        $result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
+
+    // Products created within a half-open [start, end) window, for the
+    // dashboard's Total Products trend badge ("+N this period").
+    public function getProductCountBetween($start, $end) {
+        $sql = "SELECT COUNT(*) AS total FROM products WHERE created_at >= ? AND created_at < ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ss", $start, $end);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
     public function getDistinctCategories() {
         $sql = "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category <> '' ORDER BY category ASC";
         $result = $this->db->query($sql);

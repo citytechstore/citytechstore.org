@@ -117,6 +117,60 @@ class Order
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    // Same as getAllOrders() but also joins the delivery address, for the
+    // staff Orders Management table + detail view — avoids an N+1
+    // getOrderWithDetails() call per row. Kept separate from getAllOrders()
+    // so that method's existing callers (e.g. the dashboard) never change.
+    public function getAllOrdersWithDetails()
+    {
+        $sql = "SELECT orders.*,
+                       customers.first_name AS customer_first_name,
+                       customers.last_name AS customer_last_name,
+                       customers.email AS customer_email,
+                       customers.phone_number AS customer_phone_number,
+                       addresses.label AS address_label,
+                       addresses.full_address AS address_full_address,
+                       addresses.city AS address_city,
+                       addresses.state AS address_state,
+                       addresses.phone_number AS address_phone_number
+                FROM orders
+                JOIN customers ON customers.id = orders.customer_id
+                JOIN addresses ON addresses.id = orders.address_id
+                ORDER BY orders.created_at DESC";
+        $result = $this->db->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Line items (with product name/thumbnail) for many orders in a single
+    // query, grouped by order_id — the bulk counterpart to getOrderItems(),
+    // for list/table views that would otherwise run one query per row.
+    public function getOrderItemsForOrderIds(array $orderIds)
+    {
+        if (empty($orderIds)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+        $types = str_repeat('i', count($orderIds));
+
+        $sql = "SELECT order_items.order_id, order_items.id, order_items.product_id, order_items.quantity, order_items.price_at_purchase,
+                       products.name, products.product_picture_url
+                FROM order_items
+                JOIN products ON products.id = order_items.product_id
+                WHERE order_items.order_id IN ($placeholders)
+                ORDER BY order_items.id ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param($types, ...$orderIds);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $itemsByOrderId = [];
+        foreach ($result->fetch_all(MYSQLI_ASSOC) as $row) {
+            $itemsByOrderId[(int) $row['order_id']][] = $row;
+        }
+        return $itemsByOrderId;
+    }
+
     // All orders belonging to one customer, newest first, for the
     // customer-facing "My Orders" list.
     public function getOrdersByCustomerId($customerId)
@@ -242,14 +296,14 @@ class Order
     // "real completed sale" definition used for getTotalRevenue().
     public function getBestsellers($limit = 10)
     {
-        $sql = "SELECT products.id, products.name,
+        $sql = "SELECT products.id, products.name, products.product_picture_url,
                        SUM(order_items.quantity) AS units_sold,
                        SUM(order_items.quantity * order_items.price_at_purchase) AS revenue
                 FROM order_items
                 JOIN orders ON orders.id = order_items.order_id
                 JOIN products ON products.id = order_items.product_id
                 WHERE orders.payment_status = 'paid'
-                GROUP BY products.id, products.name
+                GROUP BY products.id, products.name, products.product_picture_url
                 ORDER BY units_sold DESC
                 LIMIT ?";
         $stmt = $this->db->prepare($sql);
@@ -257,6 +311,41 @@ class Order
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Dashboard "needs attention" card: orders not yet even confirmed.
+    public function getPendingOrdersCount()
+    {
+        $sql = "SELECT COUNT(*) AS total FROM orders WHERE status = 'pending'";
+        $result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
+
+    // Paid revenue within a half-open [start, end) window, for the dashboard
+    // trend badges (current 30 days vs. the prior 30 days).
+    public function getRevenueBetween($start, $end)
+    {
+        $sql = "SELECT SUM(total) AS revenue FROM orders WHERE payment_status = 'paid' AND created_at >= ? AND created_at < ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ss", $start, $end);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return (float) ($row['revenue'] ?? 0);
+    }
+
+    // All orders (any status) within a half-open [start, end) window, for
+    // the Total Orders trend badge.
+    public function getOrdersCountBetween($start, $end)
+    {
+        $sql = "SELECT COUNT(*) AS total FROM orders WHERE created_at >= ? AND created_at < ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ss", $start, $end);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
     }
 }
 

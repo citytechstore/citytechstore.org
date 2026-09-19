@@ -38,6 +38,19 @@ class Customer
         return (int) $row['total'];
     }
 
+    // Customers created within a half-open [start, end) window, for the
+    // dashboard's Total Customers trend badge ("+N this period").
+    public function getCustomerCountBetween($start, $end)
+    {
+        $sql = "SELECT COUNT(*) AS total FROM customers WHERE created_at >= ? AND created_at < ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ss", $start, $end);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return (int) $row['total'];
+    }
+
     public function register($data)
     {
         if ($this->findByEmail($data['email'])) {
