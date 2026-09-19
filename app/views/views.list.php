@@ -22,7 +22,7 @@
 
         <div class="container mt-5">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2">
-                <h4 class="fs-4 mb-5">Available <?php echo ucfirst($_GET['p']); ?> Products</h4>
+                <h4 class="fs-4 mb-5">Available <?php echo htmlspecialchars(ucfirst($_GET['p']), ENT_QUOTES, 'UTF-8'); ?> Products</h4>
                 <?php echoSearchForm(); ?>
             </div>
             <?php
@@ -48,14 +48,14 @@
             <?php foreach ($productByMan as $pbm): ?>
                 <?php
                 echo '<tr>
- <td>' . $pbm['id'] . '</td>
- <td>' . $pbm['name'] . '</td>
- <td>' . $pbm['description'] . '</td>
+ <td>' . htmlspecialchars($pbm['id'], ENT_QUOTES, 'UTF-8') . '</td>
+ <td>' . htmlspecialchars($pbm['name'], ENT_QUOTES, 'UTF-8') . '</td>
+ <td>' . htmlspecialchars($pbm['description'], ENT_QUOTES, 'UTF-8') . '</td>
  <td>₦' . number_format($pbm['unit_price'], 2) . '</td>
  <td>' . number_format($pbm['quantity']) . '</td>
- <td>' . $pbm['manufacturer'] . '</td>
- <td>' . $pbm['category'] . '</td>
- <td><img src="' . $pbm['product_picture_url'] . '" alt="' . $pbm['name'] . '" width="50"></td>
+ <td>' . htmlspecialchars($pbm['manufacturer'], ENT_QUOTES, 'UTF-8') . '</td>
+ <td>' . htmlspecialchars($pbm['category'], ENT_QUOTES, 'UTF-8') . '</td>
+ <td><img src="' . htmlspecialchars($pbm['product_picture_url'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($pbm['name'], ENT_QUOTES, 'UTF-8') . '" width="50"></td>
 </tr>';
                 ?>
             <?php endforeach; ?>
@@ -74,14 +74,14 @@
 
                 <?php foreach ($products as $product): ?>
                     <div class="col-md-3 mb-1">
-                        <a href="list?c=manufacturer&p=<?php echo $product['manufacturer']; ?>"
+                        <a href="list?c=manufacturer&p=<?php echo urlencode($product['manufacturer']); ?>"
                             class="link text-decoration-none">
                             <div class="card">
                                 <div class="card-body">
                                     <div class="card-title">
-                                        <?php echo $product['manufacturer'] . " - " . $product['category']; ?>
+                                        <?php echo htmlspecialchars($product['manufacturer'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($product['category'], ENT_QUOTES, 'UTF-8'); ?>
                                     </div>
-                                    <div class="card-text">Count: <?php echo $product['quantity'] ?></div>
+                                    <div class="card-text">Count: <?php echo htmlspecialchars($product['quantity'], ENT_QUOTES, 'UTF-8') ?></div>
                                 </div>
                             </div>
                         </a>
@@ -98,7 +98,7 @@
 
         <div class="container mt-5">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2">
-                <h4 class="fs-4 mb-5">Available Products from search '<?php echo ucfirst($_GET['searchInput']); ?>'</h4>
+                <h4 class="fs-4 mb-5">Available Products from search '<?php echo htmlspecialchars(ucfirst($_GET['searchInput']), ENT_QUOTES, 'UTF-8'); ?>'</h4>
                 <?php echoSearchForm(); ?>
             </div>
             <?php
@@ -130,14 +130,14 @@
                 foreach ($productBySearch as $pbs): ?>
                     <?php
                     echo '<tr>
-<td>' . $pbs['id'] . '</td>
-<td>' . $pbs['name'] . '</td>
-<td>' . $pbs['description'] . '</td>
+<td>' . htmlspecialchars($pbs['id'], ENT_QUOTES, 'UTF-8') . '</td>
+<td>' . htmlspecialchars($pbs['name'], ENT_QUOTES, 'UTF-8') . '</td>
+<td>' . htmlspecialchars($pbs['description'], ENT_QUOTES, 'UTF-8') . '</td>
 <td>₦' . number_format($pbs['unit_price'], 2) . '</td>
 <td>' . number_format($pbs['quantity']) . '</td>
-<td>' . $pbs['manufacturer'] . '</td>
-<td>' . $pbs['category'] . '</td>
-<td><img src="' . $pbs['product_picture_url'] . '" alt="' . $pbs['name'] . '" width="50"></td>
+<td>' . htmlspecialchars($pbs['manufacturer'], ENT_QUOTES, 'UTF-8') . '</td>
+<td>' . htmlspecialchars($pbs['category'], ENT_QUOTES, 'UTF-8') . '</td>
+<td><img src="' . htmlspecialchars($pbs['product_picture_url'], ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($pbs['name'], ENT_QUOTES, 'UTF-8') . '" width="50"></td>
 
 </tr>';
                     ?>

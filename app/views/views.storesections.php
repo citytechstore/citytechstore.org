@@ -114,7 +114,7 @@
  <div class="container text-center">
 
      <p class="fs-3">Are you sure you want to delete this section? </p>
-     <a href='storesection?action=delete&section_id=<?= $_GET["section_id"]; ?>&confirmed_action=true' class='btn btn-outline-danger'>Yes, delete</a>
+     <a href='storesection?action=delete&section_id=<?= urlencode($_GET["section_id"]); ?>&confirmed_action=true' class='btn btn-outline-danger'>Yes, delete</a>
      <a href='storesection' class='btn btn-secondary'>Cancel</a>
  </div>
 
@@ -127,8 +127,8 @@
 
                 <div class="row align-items-center">
                     <!-- <div class="col"><a href="storesection?render=create" class="btn btn-primary">Create Section</a></div> -->
-                    <div class="col"><a href="storesection?render=edit&section_id=<?php echo $_GET['section_id']; ?>" class="btn btn-warning">Update Section</a></div>
-                    <div class="col"><a href="storesection?render=delete&section_id=<?php echo $_GET['section_id']; ?>" class="btn btn-danger">Delete Section</a></div>
+                    <div class="col"><a href="storesection?render=edit&section_id=<?php echo urlencode($_GET['section_id']); ?>" class="btn btn-warning">Update Section</a></div>
+                    <div class="col"><a href="storesection?render=delete&section_id=<?php echo urlencode($_GET['section_id']); ?>" class="btn btn-danger">Delete Section</a></div>
                 </div>
             </div>
         <?php endif; ?>

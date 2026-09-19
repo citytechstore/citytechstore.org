@@ -53,68 +53,194 @@
             <main class="admin-content container-fluid">
         <?php
         if (isset($_GET['type']) && (strtolower($_GET['type']) == 'products' || strtolower($_GET['type']) == 'product') && !isset($_GET['action'])) {
+            $productsLowStockThreshold = 5; // same constant used by the dashboard's low-stock card
+            $productsLowStockCount = $ProductModel->getLowStockCount($productsLowStockThreshold);
+            $productsOutOfStockCount = $ProductModel->getOutOfStockCount();
+            $productsInStockCount = $total_products_count - $productsOutOfStockCount;
+            $productRevenueStats = $OrderModel->getProductRevenueAndUnitsSold();
+
+            // Includes deactivated staff — getAllUsers() has no is_active
+            // filter, so a product uploaded by a since-deactivated worker
+            // still resolves a name instead of falling through to "—".
+            $usersById = array_column($users, null, 'id');
+
+            // Distinct categories among the products actually being listed,
+            // not the full category master list — tolerates blank/missing
+            // category on any given product by simply skipping it.
+            $productCategoryFilterOptions = [];
+            foreach ($products as $productForFilter) {
+                if (!empty($productForFilter['category'])) {
+                    $productCategoryFilterOptions[$productForFilter['category']] = true;
+                }
+            }
+            $productCategoryFilterOptions = array_keys($productCategoryFilterOptions);
+            sort($productCategoryFilterOptions);
 
             $categoryOptionsHtml = '<option value="">Select category</option>';
             foreach ($categories as $cat) {
                 $categoryOptionsHtml .= '<option value="' . htmlspecialchars($cat['name']) . '">' . htmlspecialchars($cat['name']) . '</option>';
             }
+            ?>
 
-            echo '
-            <div class="container-fluid">
-            <div class="row border-bottom pb-1">
-            <div class="col-8"><h2 class="mb-4">Products Management</h2></div>
-            <div class="col-4 fs-5">Total Products: ' . $total_products_count . ' | Total Price: ₦' . number_format($total_products_price, 2) . '</div>
-            </div>
-            </div>
-            ';
-            echo '
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Unit Price</th>
-                        <th scope="col">Total Price</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Manufacturer</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Uploaded By</th>
-                        <th scope="col">Product Image</th>
-                        <th scope="col">Created At</th>
-                        ' . ((isset($_SESSION['loggedin'])) ? '<th scope="col">Action</th>' : '') . '
-                    </tr>
-                </thead>
-                <tbody>';
-            foreach ($products as $product) {
-                echo '<tr>
-                    <td>' . $product['id'] . '</td>
-                    <td>' . $product['name'] . '</td>
-                    <td>' . $product['description'] . '</td>
-                    <td>₦' . number_format($product['unit_price'], 2) . '</td>
-                    <td>₦' . number_format($product['total_price'], 2) . '</td>
-                    <td>' . number_format($product['quantity']) . '</td>
-                    <td>' . $product['manufacturer'] . '</td>
-                    <td>' . $product['category'] . '</td>
-                    <td>' . ucfirst($UsersModel->getUserById($product['uploaded_by'])['firstname']) . ' ' . ucfirst($UsersModel->getUserById($product['uploaded_by'])['lastname']) . '</td>
-                    <td><img src="' . $product['product_picture_url'] . '" alt="' . $product['name'] . '" width="50"></td>
-                    <td>' . $product['created_at'] . '</td>
-                    ' . ((isset($_SESSION['loggedin'])) ? ' <td class="text-center"><a href="manage?type=products&action=editproduct&pid=' . $product['id'] . '"><i class="fa fa-edit"></i></a></td>' : '') . '
-                </tr>';
-                // print_r();
+            <?php if (isset($_GET['status'])): ?>
+                <?php if ($_GET['status'] === 'success'): ?>
+                    <div class="alert alert-success">Product saved successfully.</div>
+                <?php elseif ($_GET['status'] === 'failed'): ?>
+                    <div class="alert alert-danger">Something went wrong.</div>
+                <?php endif; ?>
+            <?php endif; ?>
 
-            }
-            echo '</tbody></table>';
-            if (count($sales) == 0) {
-                echo '<h4 class="text-muted text-center mt-5 mb-5">No products in stock for now</h4>';
-            }
-            echo '
-     
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProduct">
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-card-icon stat-card-icon-navy"><i class="fas fa-naira-sign"></i></div>
+                        <div>
+                            <div class="stat-card-value">&#8358;<?php echo number_format($productRevenueStats['revenue'], 2); ?></div>
+                            <div class="stat-card-label">Product Revenue (paid orders)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-box-open"></i></div>
+                        <div>
+                            <div class="stat-card-value"><?php echo number_format($productRevenueStats['units_sold']); ?></div>
+                            <div class="stat-card-label">Units Sold</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-card-icon stat-card-icon-navy"><i class="fas fa-warehouse"></i></div>
+                        <div>
+                            <div class="stat-card-value"><?php echo number_format($productsInStockCount); ?></div>
+                            <div class="stat-card-label">In Stock</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-card-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                        <div>
+                            <div class="stat-card-value"><?php echo number_format($productsLowStockCount); ?></div>
+                            <div class="stat-card-label">Low Stock (&le; <?php echo (int) $productsLowStockThreshold; ?>)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-panel mb-3">
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <input type="search" id="productSearchInput" class="form-control" style="max-width: 320px;" placeholder="Search name, manufacturer or category&hellip;">
+                    <select id="productCategoryFilter" class="form-select" style="max-width: 220px;">
+                        <option value="">All Categories</option>
+                        <?php foreach ($productCategoryFilterOptions as $categoryOption): ?>
+                            <option value="<?php echo htmlspecialchars($categoryOption); ?>"><?php echo htmlspecialchars($categoryOption); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="dashboard-panel">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 admin-orders-table" id="productsTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Product</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Manufacturer</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Stock</th>
+                                <th scope="col">Uploaded By</th>
+                                <?php if (isset($_SESSION['loggedin'])): ?>
+                                    <th scope="col">Actions</th>
+                                <?php endif; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($products as $product): ?>
+                                <?php
+                                    $productQuantity = (int) $product['quantity'];
+                                    $uploader = $usersById[$product['uploaded_by']] ?? null;
+                                    $uploaderName = $uploader
+                                        ? htmlspecialchars(ucfirst($uploader['firstname']) . ' ' . ucfirst($uploader['lastname']))
+                                        : '&mdash;';
+                                    $stockBadge = '';
+                                    if ($productQuantity === 0) {
+                                        $stockBadge = '<span class="badge bg-danger ms-1">Out of Stock</span>';
+                                    } elseif ($productQuantity <= $productsLowStockThreshold) {
+                                        $stockBadge = '<span class="badge bg-warning text-dark ms-1">Low Stock</span>';
+                                    }
+                                ?>
+                                <tr data-product-row data-category="<?php echo htmlspecialchars($product['category'] ?? ''); ?>">
+                                    <td><?php echo (int) $product['id']; ?></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="<?php echo htmlspecialchars($product['product_picture_url'] ?? ''); ?>"
+                                                 alt="" class="admin-product-thumb">
+                                            <span><?php echo htmlspecialchars($product['name']); ?></span>
+                                        </div>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($product['category'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($product['manufacturer'] ?? ''); ?></td>
+                                    <td>&#8358;<?php echo number_format($product['unit_price'], 2); ?></td>
+                                    <td><?php echo number_format($productQuantity); ?><?php echo $stockBadge; ?></td>
+                                    <td><?php echo $uploaderName; ?></td>
+                                    <?php if (isset($_SESSION['loggedin'])): ?>
+                                        <td class="text-center">
+                                            <a href="manage?type=products&action=editproduct&pid=<?php echo (int) $product['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-edit"></i> Edit
+                                            </a>
+                                        </td>
+                                    <?php endif; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <p id="productsEmptyState" class="text-muted text-center py-4 mb-0 d-none">No matching products.</p>
+                <?php if (empty($products)): ?>
+                    <p class="text-muted text-center py-4 mb-0">No products in stock for now.</p>
+                <?php endif; ?>
+            </div>
+
+            <script>
+            (function () {
+                var searchInput = document.getElementById('productSearchInput');
+                var categoryFilter = document.getElementById('productCategoryFilter');
+                var emptyState = document.getElementById('productsEmptyState');
+                var rows = document.querySelectorAll('#productsTable tbody tr[data-product-row]');
+
+                function applyFilters() {
+                    var term = searchInput.value.trim().toLowerCase();
+                    var category = categoryFilter.value;
+                    var visibleCount = 0;
+
+                    rows.forEach(function (row) {
+                        var matchesSearch = term === '' || row.textContent.toLowerCase().indexOf(term) !== -1;
+                        var matchesCategory = category === '' || row.getAttribute('data-category') === category;
+                        var visible = matchesSearch && matchesCategory;
+                        row.classList.toggle('d-none', !visible);
+                        if (visible) {
+                            visibleCount++;
+                        }
+                    });
+
+                    emptyState.classList.toggle('d-none', visibleCount !== 0 || rows.length === 0);
+                }
+
+                if (searchInput && categoryFilter) {
+                    searchInput.addEventListener('input', applyFilters);
+                    categoryFilter.addEventListener('change', applyFilters);
+                }
+            })();
+            </script>
+
+            <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addProduct">
               Add Product
             </button>
-            
+
             <!-- Modal -->
             <div class="modal fade" id="addProduct" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addProductLabel" aria-hidden="true">
               <div class="modal-dialog modal-xl">
@@ -129,7 +255,7 @@
                   <div class="container mt-4">
                   <h1>Add Product Info</h1>
                   <form action="manage" method="POST" enctype="multipart/form-data">
-                      <input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCsrfToken()) . '">
+                      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
                       <!-- Product Information -->
                       <div class="mb-3">
                           <div class="row">
@@ -162,7 +288,7 @@
                               </div>
                               <div class="col-md-6">
                                   <label for="category" class="form-label">Category</label>
-                                  <select class="form-control" id="category" name="category" required>' . $categoryOptionsHtml . '</select>
+                                  <select class="form-control" id="category" name="category" required><?php echo $categoryOptionsHtml; ?></select>
                               </div>
                           </div>
                           <div class="row mt-3">
@@ -172,7 +298,7 @@
                               </div>
                               <div class="col-md-6">
                                <!--   <label for="uploaderName" class="form-label">Uploader Name</label> -->
-                                  <input type="hidden" class="form-control" id="uploaderName" name="uploaderName" placeholder="" value="' . $_SESSION['user_session']['id'] . '"required>
+                                  <input type="hidden" class="form-control" id="uploaderName" name="uploaderName" placeholder="" value="<?php echo (int) $_SESSION['user_session']['id']; ?>" required>
                               </div>
                           </div>
                       </div>
@@ -187,7 +313,7 @@
                   </div>
                   </div>
             </div>
-            ';
+            <?php
         } elseif (isset($_GET['type']) && strtolower($_GET['type']) == 'categories' && !isset($_GET['action'])) {
 
             echo '
@@ -961,15 +1087,15 @@
             <div class="row">
                 <div class="col-md-6">
                 <input type="hidden" class="form-control" id="productID" name="productID"
-                value="' . $_GET['pid'] . '">
+                value="' . htmlspecialchars($_GET['pid'], ENT_QUOTES, 'UTF-8') . '">
                     <label for="productName" class="form-label">Product Name</label>
                     <input type="text" class="form-control" id="productName" name="productName"
-                        placeholder="Enter new product name" value="' . $productData['name'] . '" required>
+                        placeholder="Enter new product name" value="' . htmlspecialchars($productData['name'], ENT_QUOTES, 'UTF-8') . '" required>
                 </div>
                 <div class="col-md-6">
                     <label for="description" class="form-label">Description</label>
                     <input class="form-control" id="description" name="description" rows="3"
-                        placeholder="Enter new product description" value="' . $productData['description'] . '"/>
+                        placeholder="Enter new product description" value="' . htmlspecialchars($productData['description'], ENT_QUOTES, 'UTF-8') . '"/>
                 </div>
             </div>
             <div class="row mt-3">
@@ -978,20 +1104,20 @@
                     <div class="input-group">
                         <span class="input-group-text">₦</span>
                         <input type="number" class="form-control" id="price" name="price" placeholder="Enter price"
-                            step="0.01" value="' . $productData['unit_price'] . '" required>
+                            step="0.01" value="' . htmlspecialchars($productData['unit_price'], ENT_QUOTES, 'UTF-8') . '" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label for="quantity" class="form-label">Quantity</label>
                     <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Enter quantity"
-                        min="0" value="' . $productData['quantity'] . '" required>
+                        min="0" value="' . htmlspecialchars($productData['quantity'], ENT_QUOTES, 'UTF-8') . '" required>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-md-6">
                     <label for="manufacturer" class="form-label">Manufacturer</label>
                     <input type="text" class="form-control" id="manufacturer" name="manufacturer"
-                        placeholder="Enter manufacturer" value="' . $productData['manufacturer'] . '">
+                        placeholder="Enter manufacturer" value="' . htmlspecialchars($productData['manufacturer'], ENT_QUOTES, 'UTF-8') . '">
                 </div>
                 <div class="col-md-6">
                     <label for="category" class="form-label">Category</label>

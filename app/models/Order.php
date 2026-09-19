@@ -347,6 +347,27 @@ class Order
         $row = $result->fetch_assoc();
         return (int) $row['total'];
     }
+
+    // Dashboard's/Orders page's revenue totals are order-level (orders.total,
+    // which includes delivery fee). This is the Products page's own
+    // definition: pure product-attributable revenue from paid orders'
+    // line items, excluding delivery fees — so it can legitimately differ
+    // slightly from getTotalRevenue(). Units sold uses the same paid-only
+    // rule as getBestsellers().
+    public function getProductRevenueAndUnitsSold()
+    {
+        $sql = "SELECT SUM(order_items.quantity * order_items.price_at_purchase) AS revenue,
+                       SUM(order_items.quantity) AS units_sold
+                FROM order_items
+                JOIN orders ON orders.id = order_items.order_id
+                WHERE orders.payment_status = 'paid'";
+        $result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+        return [
+            'revenue' => (float) ($row['revenue'] ?? 0),
+            'units_sold' => (int) ($row['units_sold'] ?? 0),
+        ];
+    }
 }
 
 $OrderModel = new Order($DatabaseModel);
