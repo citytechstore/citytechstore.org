@@ -33,7 +33,8 @@ return [
     '/listsales' => 'app/controllers/controllers.listsales.php',
     '/list' => 'app/controllers/controllers.list.php',
     '/manage' => 'app/controllers/controllers.manage.php',
-    
+    '/customers' => 'app/controllers/controllers.customers.php',
+
     '/admin' => 'app/controllers/controllers.admin.php',
     '/dashboard' => 'app/controllers/controllers.dashboard.php',
     '/dashboard/revenue-chart' => 'app/controllers/controllers.dashboard_revenue_chart.php',

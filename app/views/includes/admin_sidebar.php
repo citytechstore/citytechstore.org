@@ -16,6 +16,7 @@ $currentManageType = $_GET['type'] ?? null;
 $adminNavLinks = [
     ['label' => 'Dashboard', 'href' => 'dashboard', 'icon' => 'fa-gauge-high', 'match' => '/dashboard'],
     ['label' => 'Orders', 'href' => 'manage?type=orders', 'icon' => 'fa-truck', 'match' => '/manage', 'matchType' => 'orders'],
+    ['label' => 'Customers', 'href' => 'customers', 'icon' => 'fa-users', 'match' => '/customers'],
     ['label' => 'Products', 'href' => 'manage?type=products', 'icon' => 'fa-box-open', 'match' => '/manage', 'matchType' => 'products'],
     ['label' => 'Categories', 'href' => 'manage?type=categories', 'icon' => 'fa-tags', 'match' => '/manage', 'matchType' => 'categories'],
     ['label' => 'Banners', 'href' => 'manage?type=category_banners', 'icon' => 'fa-image', 'match' => '/manage', 'matchType' => 'category_banners'],

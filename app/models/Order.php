@@ -210,6 +210,46 @@ class Order
         return $result->fetch_assoc();
     }
 
+    // One customer's orders with their delivery address joined, for the
+    // Customers page detail section — no customers join needed since the
+    // caller already has that customer's own record.
+    public function getOrdersWithAddressByCustomerId($customerId)
+    {
+        $sql = "SELECT orders.*,
+                       addresses.label AS address_label,
+                       addresses.full_address AS address_full_address,
+                       addresses.city AS address_city,
+                       addresses.state AS address_state,
+                       addresses.phone_number AS address_phone_number
+                FROM orders
+                JOIN addresses ON addresses.id = orders.address_id
+                WHERE orders.customer_id = ?
+                ORDER BY orders.created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $customerId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    // Paid spend per calendar month for one customer, for the Customers
+    // page's spend-over-time chart. Only returns rows for months that
+    // actually had a paid order — the caller zero-fills the rest, same
+    // pattern as getDailyRevenueForLastNDays().
+    public function getMonthlySpendForCustomer($customerId, $months = 12)
+    {
+        $sql = "SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, SUM(total) AS spend
+                FROM orders
+                WHERE customer_id = ? AND payment_status = 'paid'
+                  AND created_at >= (CURDATE() - INTERVAL ? MONTH)
+                GROUP BY DATE_FORMAT(created_at, '%Y-%m')";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ii", $customerId, $months);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     // $newStatus is checked against the exact orders.status ENUM values —
     // never interpolated or bound as an arbitrary caller-supplied string.
     public function updateOrderStatus($orderId, $newStatus)

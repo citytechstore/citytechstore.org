@@ -1154,3 +1154,33 @@ h4.fs-4 {
 .admin-orders-table .text-muted {
     font-size: 0.8rem;
 }
+
+/* ---------- Customers page ---------- */
+.admin-avatar-initials {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--color-navy);
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-family-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.admin-avatar-initials-lg {
+    width: 72px;
+    height: 72px;
+    font-size: 1.5rem;
+}
+
+.admin-customer-row {
+    cursor: pointer;
+}
+
+.admin-customer-row:hover {
+    background-color: var(--color-bg-secondary);
+}

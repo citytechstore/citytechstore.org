@@ -51,6 +51,56 @@ class Customer
         return (int) $row['total'];
     }
 
+    // Explicit-column profile fetch for the staff Customers page — never
+    // selects password, and resolves google_id to a boolean here so the
+    // raw id value never leaves the database row.
+    public function getPublicProfileById($id)
+    {
+        $sql = "SELECT id, first_name, last_name, email, phone_number,
+                       google_id IS NOT NULL AS uses_google, created_at
+                FROM customers WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    // Falls back to the most recently added address when none is flagged
+    // primary — for the Customers detail page's "Location" field.
+    public function getPrimaryAddress($customerId)
+    {
+        $sql = "SELECT city, state FROM addresses
+                WHERE customer_id = ?
+                ORDER BY is_primary DESC, created_at DESC
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $customerId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    // One aggregate query for the Customers list page: order count and paid
+    // total per customer via LEFT JOIN + GROUP BY, no per-row queries.
+    // Never selects password; google_id is only ever exposed as a boolean.
+    public function getCustomerListWithStats()
+    {
+        $sql = "SELECT customers.id, customers.first_name, customers.last_name,
+                       customers.email, customers.phone_number,
+                       customers.google_id IS NOT NULL AS uses_google,
+                       customers.created_at,
+                       COUNT(orders.id) AS orders_count,
+                       COALESCE(SUM(CASE WHEN orders.payment_status = 'paid' THEN orders.total ELSE 0 END), 0) AS total_spent
+                FROM customers
+                LEFT JOIN orders ON orders.customer_id = customers.id
+                GROUP BY customers.id, customers.first_name, customers.last_name,
+                         customers.email, customers.phone_number, customers.google_id, customers.created_at
+                ORDER BY customers.created_at DESC";
+        $result = $this->db->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     public function register($data)
     {
         if ($this->findByEmail($data['email'])) {
